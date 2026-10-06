@@ -1,0 +1,14 @@
+{
+  "item.permadeath.corazon_permanente": "Corazón Permanente",
+  "item.permadeath.corazon_permanente.tooltip": "Clic derecho: +1 corazón permanente (máx. 20)",
+  "item.permadeath.esencia_vital": "Esencia Vital",
+  "item.permadeath.esencia_vital.tooltip": "Clic derecho: gastás 1 corazón permanente",
+  "item.permadeath.esencia_vital.tooltip2": "Curación total y efectos temporales",
+  "item.permadeath.totem_memoria": "Tótem de Memoria",
+  "item.permadeath.totem_memoria.tooltip": "Conservás inventario y experiencia al morir",
+  "item.permadeath.totem_memoria.tooltip2": "Se consume al usarse",
+  "item.permadeath.icono_hardcore": "Corazón Hardcore",
+  "itemGroup.permadeath.hardcore": "Hardcore",
+  "msg.permadeath.hearts_max": "Ya tenés el máximo de corazones permanentes.",
+  "msg.permadeath.hearts_min": "Estás en el mínimo de 5 corazones: no podés gastar más."
+}

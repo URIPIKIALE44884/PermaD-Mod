@@ -1,0 +1,14 @@
+{
+  "item.permadeath.corazon_permanente": "Permanent Heart",
+  "item.permadeath.corazon_permanente.tooltip": "Right click: +1 permanent heart (max 20)",
+  "item.permadeath.esencia_vital": "Vital Essence",
+  "item.permadeath.esencia_vital.tooltip": "Right click: spend 1 permanent heart",
+  "item.permadeath.esencia_vital.tooltip2": "Full heal and temporary effects",
+  "item.permadeath.totem_memoria": "Totem of Memory",
+  "item.permadeath.totem_memoria.tooltip": "Keep your inventory and XP when you die",
+  "item.permadeath.totem_memoria.tooltip2": "Consumed on death",
+  "item.permadeath.icono_hardcore": "Hardcore Heart",
+  "itemGroup.permadeath.hardcore": "Hardcore",
+  "msg.permadeath.hearts_max": "You already have the maximum permanent hearts.",
+  "msg.permadeath.hearts_min": "You are at the minimum of 5 hearts: you cannot spend more."
+}

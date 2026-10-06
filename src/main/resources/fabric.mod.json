@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "id": "permadeath",
+  "version": "${version}",
+  "name": "Permadeath SMP",
+  "description": "Corazones permanentes, Totem de Memoria, pestana Hardcore en el Creativo y pociones apilables.",
+  "authors": [
+    "Permadeath SMP"
+  ],
+  "license": "All-Rights-Reserved",
+  "icon": "assets/permadeath/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.permadeath.PermadeathMod"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.15.10",
+    "minecraft": "~1.20.6",
+    "java": ">=21",
+    "fabric-api": "*"
+  }
+}
