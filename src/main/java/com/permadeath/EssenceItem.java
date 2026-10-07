@@ -34,6 +34,11 @@ public class EssenceItem extends Item {
             return TypedActionResult.pass(stack);
         }
 
+        if (player.hasStatusEffect(ModEffects.ZOMBIFICACION)) {
+            player.sendMessage(Text.translatable("msg.permadeath.infected_no_essence"), true);
+            return TypedActionResult.fail(stack);
+        }
+
         int extra = HeartData.get(player);
         if (extra <= HeartData.MIN) {
             player.sendMessage(Text.translatable("msg.permadeath.hearts_min"), true);

@@ -3,7 +3,7 @@
   "id": "permadeath",
   "version": "${version}",
   "name": "Permadeath SMP",
-  "description": "Corazones permanentes, Totem de Memoria, pestana Hardcore en el Creativo y pociones apilables.",
+  "description": "Corazones permanentes, Totem de Memoria, pestana Hardcore, infeccion zombi, moldeador de mobs con pantalla de administracion.",
   "authors": [
     "Permadeath SMP"
   ],
@@ -13,6 +13,9 @@
   "entrypoints": {
     "main": [
       "com.permadeath.PermadeathMod"
+    ],
+    "client": [
+      "com.permadeath.client.PermadeathClient"
     ]
   },
   "depends": {
@@ -20,5 +23,8 @@
     "minecraft": "~1.20.6",
     "java": ">=21",
     "fabric-api": "*"
-  }
+  },
+  "mixins": [
+    "permadeath.mixins.json"
+  ]
 }

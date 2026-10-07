@@ -1,8 +1,10 @@
 package com.permadeath;
 
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
+import net.minecraft.component.type.PotionContentsComponent;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.text.Text;
@@ -25,6 +27,9 @@ public final class ModItemGroups {
                         entries.add(ModItems.CORAZON);
                         entries.add(ModItems.ESENCIA);
                         entries.add(ModItems.TOTEM);
+                        entries.add(PotionContentsComponent.createStack(Items.POTION, ModPotions.ANTIDOTO));
+                        entries.add(PotionContentsComponent.createStack(Items.SPLASH_POTION, ModPotions.ANTIDOTO));
+                        entries.add(PotionContentsComponent.createStack(Items.LINGERING_POTION, ModPotions.ANTIDOTO));
                     })
                     .build());
 

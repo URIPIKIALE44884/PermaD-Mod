@@ -10,5 +10,13 @@
   "item.permadeath.icono_hardcore": "Hardcore Heart",
   "itemGroup.permadeath.hardcore": "Hardcore",
   "msg.permadeath.hearts_max": "You already have the maximum permanent hearts.",
-  "msg.permadeath.hearts_min": "You are at the minimum of 5 hearts: you cannot spend more."
+  "msg.permadeath.hearts_min": "You are at the minimum of 5 hearts: you cannot spend more.",
+  "effect.permadeath.zombificacion": "Zombification",
+  "effect.permadeath.antidoto": "Antidote",
+  "item.minecraft.potion.effect.antidoto": "Potion of Antidote",
+  "item.minecraft.splash_potion.effect.antidoto": "Splash Potion of Antidote",
+  "item.minecraft.lingering_potion.effect.antidoto": "Lingering Potion of Antidote",
+  "item.minecraft.tipped_arrow.effect.antidoto": "Arrow of Antidote",
+  "msg.permadeath.infected": "You are infected! Zombification: you cannot regenerate health.",
+  "msg.permadeath.infected_no_essence": "You cannot use Vital Essence while Zombified."
 }

@@ -13,27 +13,33 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.world.GameRules;
 
 /**
- * - Cada muerte de un jugador resta 1 corazon permanente (hasta el minimo de 5).
- * - Si el jugador lleva un Totem de Memoria, se consume y SOLO ese jugador
- *   conserva inventario y experiencia al morir.
+ * - Cada muerte resta 1 corazon permanente (hasta el minimo de 5).
+ * - Si el jugador muere con Zombificacion pierde 2 corazones EN TOTAL (en vez de 1),
+ *   y puede bajar hasta 3 corazones (minimo real).
+ * - Si lleva un Totem de Memoria, se consume y SOLO ese jugador conserva inventario y experiencia.
  *
- * Truco: justo antes de morir se activa keepInventory y se restaura apenas
- * termina la muerte (todo ocurre en el mismo tick del servidor). Al reaparecer,
- * se copia el inventario manualmente.
+ * Truco del totem: justo antes de morir se activa keepInventory y se restaura apenas
+ * termina la muerte (mismo tick del servidor). Al reaparecer se copia el inventario.
  */
 public final class DeathHandler {
     private DeathHandler() {}
 
     private static final Set<UUID> KEEPERS = ConcurrentHashMap.newKeySet();
+    private static final Set<UUID> INFECTED = ConcurrentHashMap.newKeySet();
     private static final Map<UUID, Boolean> PREVIOUS_RULE = new ConcurrentHashMap<>();
 
     public static void init() {
         ServerLivingEntityEvents.ALLOW_DEATH.register((entity, source, amount) -> {
-            if (entity instanceof ServerPlayerEntity player && consumeTotem(player)) {
-                KEEPERS.add(player.getUuid());
-                GameRules.BooleanRule rule = player.getServerWorld().getGameRules().get(GameRules.KEEP_INVENTORY);
-                PREVIOUS_RULE.put(player.getUuid(), rule.get());
-                rule.set(true, player.getServer());
+            if (entity instanceof ServerPlayerEntity player) {
+                if (player.hasStatusEffect(ModEffects.ZOMBIFICACION)) {
+                    INFECTED.add(player.getUuid());
+                }
+                if (consumeTotem(player)) {
+                    KEEPERS.add(player.getUuid());
+                    GameRules.BooleanRule rule = player.getServerWorld().getGameRules().get(GameRules.KEEP_INVENTORY);
+                    PREVIOUS_RULE.put(player.getUuid(), rule.get());
+                    rule.set(true, player.getServer());
+                }
             }
             return true;
         });
@@ -42,14 +48,15 @@ public final class DeathHandler {
             if (!(entity instanceof ServerPlayerEntity player)) {
                 return;
             }
-            // restaurar la regla keepInventory
             Boolean previous = PREVIOUS_RULE.remove(player.getUuid());
             if (previous != null) {
                 player.getServerWorld().getGameRules().get(GameRules.KEEP_INVENTORY).set(previous, player.getServer());
             }
-            // perder un corazon permanente
+
             int extra = HeartData.get(player);
-            if (extra > HeartData.MIN) {
+            if (INFECTED.remove(player.getUuid())) {
+                player.setAttached(HeartData.EXTRA, Math.max(HeartData.ABS_MIN, extra - 2));
+            } else if (extra > HeartData.MIN) {
                 player.setAttached(HeartData.EXTRA, extra - 1);
             }
         });

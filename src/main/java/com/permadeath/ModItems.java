@@ -19,7 +19,7 @@ public final class ModItems {
 
     /** Conserva el inventario al morir (por jugador) y se consume. */
     public static final Item TOTEM = register("totem_memoria",
-            new MemoryTotemItem(new Item.Settings().maxCount(16).rarity(Rarity.EPIC)));
+            new MemoryTotemItem(new Item.Settings().maxCount(1).rarity(Rarity.EPIC)));
 
     /** Solo icono de la pestana del Creativo. No esta en ninguna pestana. */
     public static final Item ICONO_HARDCORE = register("icono_hardcore",

@@ -10,5 +10,13 @@
   "item.permadeath.icono_hardcore": "Corazón Hardcore",
   "itemGroup.permadeath.hardcore": "Hardcore",
   "msg.permadeath.hearts_max": "Ya tenés el máximo de corazones permanentes.",
-  "msg.permadeath.hearts_min": "Estás en el mínimo de 5 corazones: no podés gastar más."
+  "msg.permadeath.hearts_min": "Estás en el mínimo de 5 corazones: no podés gastar más.",
+  "effect.permadeath.zombificacion": "Zombificación",
+  "effect.permadeath.antidoto": "Antídoto",
+  "item.minecraft.potion.effect.antidoto": "Poción de Antídoto",
+  "item.minecraft.splash_potion.effect.antidoto": "Poción arrojadiza de Antídoto",
+  "item.minecraft.lingering_potion.effect.antidoto": "Poción persistente de Antídoto",
+  "item.minecraft.tipped_arrow.effect.antidoto": "Flecha de Antídoto",
+  "msg.permadeath.infected": "¡Te infectaste! Zombificación: no podés regenerar vida.",
+  "msg.permadeath.infected_no_essence": "No podés usar la Esencia Vital con Zombificación."
 }

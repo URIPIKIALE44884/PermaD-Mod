@@ -20,7 +20,10 @@ import net.minecraft.util.math.MathHelper;
 public final class HeartData {
     private HeartData() {}
 
+    /** Minimo normal (5 corazones): lo usan la Esencia Vital y las muertes comunes. */
     public static final int MIN = -5;
+    /** Minimo real (3 corazones): solo se llega por morir con Zombificacion. */
+    public static final int ABS_MIN = -7;
     public static final int MAX = 10;
 
     public static final AttachmentType<Integer> EXTRA = AttachmentRegistry.<Integer>builder()
@@ -34,7 +37,7 @@ public final class HeartData {
     }
 
     public static void set(ServerPlayerEntity player, int value) {
-        player.setAttached(EXTRA, MathHelper.clamp(value, MIN, MAX));
+        player.setAttached(EXTRA, MathHelper.clamp(value, ABS_MIN, MAX));
         apply(player);
     }
 
