@@ -16,6 +16,7 @@ import com.permadeath.MobSettings;
 import com.permadeath.MobShaper;
 import com.permadeath.ResetPayload;
 import com.permadeath.UpdatePayload;
+import com.permadeath.WaveActionPayload;
 
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.MinecraftClient;
@@ -57,7 +58,7 @@ public class PermadeathScreen extends Screen {
     private static final String[] DIM_IDS = { "overworld", "nether", "end" };
     private static final String[] DIM_NAMES = { "Overworld", "Nether", "End" };
 
-    private enum Tab { MOBS, DIFICULTAD }
+    private enum Tab { MOBS, DIFICULTAD, OLEADA }
 
     private enum Section { GENERAL, ARMADURA, EFECTOS, DIMENSIONES }
 
@@ -103,14 +104,20 @@ public class PermadeathScreen extends Screen {
             tab = Tab.DIFICULTAD;
             clearAndInit();
         }).dimensions(left + 70, top + 6, 76, 18).build());
+        addDrawableChild(ButtonWidget.builder(Text.literal(tab == Tab.OLEADA ? "[Oleada]" : "Oleada"), b -> {
+            tab = Tab.OLEADA;
+            clearAndInit();
+        }).dimensions(left + 150, top + 6, 60, 18).build());
         addDrawableChild(ButtonWidget.builder(Text.literal("Cerrar"), b -> close())
                 .dimensions(left + PANEL_W - 62, top + 6, 56, 18).build());
 
         if (tab == Tab.MOBS) {
             refreshPreview();
             initMobs();
-        } else {
+        } else if (tab == Tab.DIFICULTAD) {
             initDifficulty();
+        } else {
+            initWave();
         }
     }
 
@@ -261,6 +268,53 @@ public class PermadeathScreen extends Screen {
                 v -> g.infectionDurationSeconds = v, this::sendGlobal);
     }
 
+    private void initWave() {
+        GlobalSettings g = data.global;
+        int x = left + 12;
+        int w = PANEL_W - 24;
+
+        addDrawableChild(ButtonWidget.builder(Text.literal(waveToggleText("Arañas (5, invisibles y rápidas)", g.waveSpiders)), b -> {
+            g.waveSpiders = !g.waveSpiders;
+            b.setMessage(Text.literal(waveToggleText("Arañas (5, invisibles y rápidas)", g.waveSpiders)));
+            sendGlobal();
+        }).dimensions(x, top + 56, w, 20).build());
+        addDrawableChild(ButtonWidget.builder(Text.literal(waveToggleText("Creepers (5, sin romper bloques)", g.waveCreepers)), b -> {
+            g.waveCreepers = !g.waveCreepers;
+            b.setMessage(Text.literal(waveToggleText("Creepers (5, sin romper bloques)", g.waveCreepers)));
+            sendGlobal();
+        }).dimensions(x, top + 80, w, 20).build());
+        addDrawableChild(ButtonWidget.builder(Text.literal(waveToggleText("Esqueletos Wither (2)", g.waveWither)), b -> {
+            g.waveWither = !g.waveWither;
+            b.setMessage(Text.literal(waveToggleText("Esqueletos Wither (2)", g.waveWither)));
+            sendGlobal();
+        }).dimensions(x, top + 104, w, 20).build());
+
+        addDrawableChild(ButtonWidget.builder(Text.literal("Generar oleada (todos los jugadores conectados)"),
+                b -> ClientPlayNetworking.send(new WaveActionPayload("start")))
+                .dimensions(x, top + 136, w, 20).build());
+        addDrawableChild(ButtonWidget.builder(Text.literal("Cancelar oleadas"),
+                b -> ClientPlayNetworking.send(new WaveActionPayload("cancel")))
+                .dimensions(x, top + 160, w, 20).build());
+    }
+
+    private static String waveToggleText(String label, boolean on) {
+        return label + ": " + (on ? "Sí" : "No");
+    }
+
+    private void drawWaveTexts(DrawContext context) {
+        context.drawText(this.textRenderer, Text.literal("Oleada"), left + 12, top + 38, 0xFF202020, false);
+        String[] lines = {
+                "Siempre: 10 zombies y 12 esqueletos (con tu configuración de spawn).",
+                "Llega en 3 minutos y aparece en tandas, a 10-15 bloques del jugador.",
+                "Persiguen solo a su jugador, ponen andamios y rompen bloques.",
+                "Durante la oleada la infección necesita 25 golpes." };
+        int y = top + 190;
+        for (String line : lines) {
+            context.drawText(this.textRenderer, Text.literal(line), left + 12, y, 0xFF404040, false);
+            y += 12;
+        }
+    }
+
     private static String infectionText(GlobalSettings g) {
         return "Activar infección: " + (g.infectionEnabled ? "Sí" : "No");
     }
@@ -276,17 +330,29 @@ public class PermadeathScreen extends Screen {
     }
 
     // ------------------------------------------------------------ dibujo
+    /**
+     * Vacio a proposito: segun la version, Screen.render() vuelve a dibujar el fondo (oscurecido/difuminado)
+     * ENCIMA de lo que ya dibujamos, y por eso el panel y los mobs se veian borrosos.
+     */
+    @Override
+    public void renderBackground(DrawContext context, int mouseX, int mouseY, float delta) {
+    }
+
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        this.renderBackground(context, mouseX, mouseY, delta);
+        // oscurecemos el mundo nosotros (sin el fondo del juego, que difuminaba el panel y los mobs)
+        context.fill(0, 0, this.width, this.height, 0x90000000);
         drawPanel(context);
         if (tab == Tab.MOBS) {
             drawMobsArea(context);
-        } else {
+        } else if (tab == Tab.DIFICULTAD) {
             drawDifficultyTexts(context);
+        } else {
+            drawWaveTexts(context);
         }
         super.render(context, mouseX, mouseY, delta);
         if (tab == Tab.MOBS) {
+            drawEggs(context);
             if (preview != null) {
                 drawEntity(context, left + 49, top + PANEL_H - 22, 48, preview);
             }
@@ -312,6 +378,13 @@ public class PermadeathScreen extends Screen {
     }
 
     private void drawMobsArea(DrawContext context) {
+        context.fill(left + 6, top + 52, left + 92, top + PANEL_H - 8, 0xFF000000);
+        context.fill(left + 7, top + 53, left + 91, top + PANEL_H - 9, 0xFF1B1B1B);
+        context.drawCenteredTextWithShadow(this.textRenderer, Text.literal(MOB_NAMES[selected.ordinal()]),
+                left + 49, top + 57, 0xFFFFFFFF);
+    }
+
+    private void drawEggs(DrawContext context) {
         MobKind[] kinds = MobKind.values();
         for (int i = 0; i < kinds.length; i++) {
             int x = eggX(i);
@@ -321,10 +394,6 @@ public class PermadeathScreen extends Screen {
             context.fill(x, y, x + 18, y + 18, 0xFF373737);
             context.drawItem(new ItemStack(EGGS[i]), x + 1, y + 1);
         }
-        context.fill(left + 6, top + 52, left + 92, top + PANEL_H - 8, 0xFF000000);
-        context.fill(left + 7, top + 53, left + 91, top + PANEL_H - 9, 0xFF1B1B1B);
-        context.drawCenteredTextWithShadow(this.textRenderer, Text.literal(MOB_NAMES[selected.ordinal()]),
-                left + 49, top + 57, 0xFFFFFFFF);
     }
 
     private void drawEggTooltip(DrawContext context, int mouseX, int mouseY) {

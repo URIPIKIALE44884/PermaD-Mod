@@ -19,12 +19,14 @@ public class PermadeathMod implements ModInitializer {
         // efectos y pociones (Zombificacion, Antidoto)
         ModEffects.init();
         ModPotions.init();
+        ModEntities.init();
 
         // configuracion de mobs, red y pantalla
         ModConfig.load();
         Networking.init();
         MobSpawnHandler.init();
         InfectionManager.init();
+        WaveManager.init();
         CommandRegistrationCallback.EVENT.register(
                 (dispatcher, registryAccess, environment) -> PermadeathCommand.register(dispatcher));
     }

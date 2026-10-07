@@ -5,7 +5,7 @@
   "item.permadeath.esencia_vital.tooltip": "Clic derecho: gastás 1 corazón permanente",
   "item.permadeath.esencia_vital.tooltip2": "Curación total y efectos temporales",
   "item.permadeath.totem_memoria": "Tótem de Memoria",
-  "item.permadeath.totem_memoria.tooltip": "Conservás inventario y experiencia al morir",
+  "item.permadeath.totem_memoria.tooltip": "Sostenelo en la mano al morir: conservás inventario y XP",
   "item.permadeath.totem_memoria.tooltip2": "Se consume al usarse",
   "item.permadeath.icono_hardcore": "Corazón Hardcore",
   "itemGroup.permadeath.hardcore": "Hardcore",
@@ -18,5 +18,9 @@
   "item.minecraft.lingering_potion.effect.antidoto": "Poción persistente de Antídoto",
   "item.minecraft.tipped_arrow.effect.antidoto": "Flecha de Antídoto",
   "msg.permadeath.infected": "¡Te infectaste! Zombificación: no podés regenerar vida.",
-  "msg.permadeath.infected_no_essence": "No podés usar la Esencia Vital con Zombificación."
+  "msg.permadeath.infected_no_essence": "No podés usar la Esencia Vital con Zombificación.",
+  "entity.permadeath.infected_zombie": "Zombie infectado",
+  "msg.permadeath.wave_incoming": "¡Se acerca una oleada! Llega en 3 minutos.",
+  "msg.permadeath.wave_start": "¡Comienza la oleada!",
+  "msg.permadeath.wave_end": "¡Sobreviviste a la oleada!"
 }

@@ -9,11 +9,14 @@ import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.mob.MobEntity;
+import net.minecraft.registry.tag.DamageTypeTags;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
+import net.minecraft.util.math.Vec3d;
 
 /**
  * Infeccion zombi:
@@ -30,7 +33,7 @@ public final class InfectionManager {
     public static void init() {
         ServerLivingEntityEvents.ALLOW_DAMAGE.register((entity, source, amount) -> {
             if (amount > 0 && entity instanceof ServerPlayerEntity player && source.getAttacker() instanceof MobEntity attacker) {
-                onHit(player, attacker);
+                onHit(player, attacker, source);
             }
             return true;
         });
@@ -44,7 +47,26 @@ public final class InfectionManager {
         });
     }
 
-    private static void onHit(ServerPlayerEntity player, MobEntity attacker) {
+    /** Replica la logica del juego: el escudo bloquea si esta levantado y el golpe viene de frente. */
+    private static boolean isShieldBlocked(ServerPlayerEntity player, DamageSource source) {
+        if (!player.isBlocking() || source.isIn(DamageTypeTags.BYPASSES_SHIELD)) {
+            return false;
+        }
+        Vec3d from = source.getPosition();
+        if (from == null) {
+            return false;
+        }
+        Vec3d look = player.getRotationVec(1.0f);
+        Vec3d toPlayer = from.relativize(player.getPos()).normalize();
+        toPlayer = new Vec3d(toPlayer.x, 0.0, toPlayer.z);
+        return toPlayer.dotProduct(look) < 0.0;
+    }
+
+    private static void onHit(ServerPlayerEntity player, MobEntity attacker, DamageSource source) {
+        // los golpes bloqueados con escudo no cuentan: solo los golpes directos
+        if (isShieldBlocked(player, source)) {
+            return;
+        }
         GlobalSettings settings = ModConfig.global();
         if (!settings.infectionEnabled) {
             return;
@@ -62,13 +84,18 @@ public final class InfectionManager {
         hits.addLast(now);
         purge(hits, now, settings);
 
-        if (hits.size() >= settings.infectionHits) {
+        if (hits.size() >= requiredHits(player, settings)) {
             hits.clear();
             player.addStatusEffect(new StatusEffectInstance(ModEffects.ZOMBIFICACION,
                     settings.infectionDurationSeconds * 20, 0, false, true, true));
             player.sendMessage(Text.translatable("msg.permadeath.infected"), true);
         }
         sync(player, settings, now);
+    }
+
+    /** Durante una oleada activa se necesitan 25 golpes en vez de los configurados. */
+    private static int requiredHits(ServerPlayerEntity player, GlobalSettings settings) {
+        return WaveManager.isActive(player.getUuid()) ? WaveManager.INFECTION_HITS_DURING_WAVE : settings.infectionHits;
     }
 
     private static void purge(ArrayDeque<Integer> hits, int now, GlobalSettings settings) {
@@ -83,7 +110,8 @@ public final class InfectionManager {
         int now = server.getTicks();
         for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
             StatusEffectInstance effect = player.getStatusEffect(ModEffects.ZOMBIFICACION);
-            if (effect != null && effect.getDuration() <= 1 && player.isAlive()) {
+            if (effect != null && effect.getDuration() <= 1 && player.isAlive()
+                    && !player.isCreative() && !player.isSpectator()) {
                 player.kill();
                 continue;
             }
@@ -102,7 +130,7 @@ public final class InfectionManager {
         ArrayDeque<Integer> hits = HITS.get(player.getUuid());
         StatusEffectInstance effect = player.getStatusEffect(ModEffects.ZOMBIFICACION);
         int hitCount = hits == null ? 0 : hits.size();
-        int needed = settings.infectionEnabled ? settings.infectionHits : 0;
+        int needed = settings.infectionEnabled ? requiredHits(player, settings) : 0;
         int ticksLeft = effect == null ? 0 : effect.getDuration();
         int[] state = new int[] { hitCount, needed, ticksLeft / 20 };
 

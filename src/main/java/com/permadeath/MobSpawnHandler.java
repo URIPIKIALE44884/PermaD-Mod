@@ -23,6 +23,11 @@ public final class MobSpawnHandler {
 
     public static void init() {
         ServerEntityEvents.ENTITY_LOAD.register((entity, world) -> {
+            // mob de una oleada que quedo huerfano (reinicio del servidor, chunk descargado): se elimina
+            if (entity.getCommandTags().contains(WaveManager.TAG) && !WaveManager.isTracked(entity.getUuid())) {
+                entity.discard();
+                return;
+            }
             if (!(entity instanceof MobEntity mob) || !mob.getCommandTags().contains(TAG_FRESH)) {
                 return;
             }

@@ -11,6 +11,11 @@ public class GlobalSettings {
     /** Duracion de la Zombificacion (segundos). Al llegar a 0 mata al jugador. */
     public int infectionDurationSeconds = 300;
 
+    /** Oleada: grupos opcionales (los zombies y esqueletos siempre estan). */
+    public boolean waveSpiders = true;
+    public boolean waveCreepers = true;
+    public boolean waveWither = true;
+
     public void fix() {
         infectionHits = Math.max(1, Math.min(30, infectionHits));
         infectionWindowSeconds = Math.max(30, Math.min(600, infectionWindowSeconds));

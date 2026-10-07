@@ -35,6 +35,13 @@ public final class PermadeathCommand {
         dispatcher.register(CommandManager.literal("permadeath")
                 .requires(source -> source.hasPermissionLevel(2))
                 .then(CommandManager.literal("list").executes(PermadeathCommand::list))
+                .then(CommandManager.literal("wave")
+                        .then(CommandManager.literal("start").executes(ctx -> say(ctx,
+                                "Oleada iniciada para " + WaveManager.startAll(ctx.getSource().getServer()) + " jugador(es).")))
+                        .then(CommandManager.literal("cancel").executes(ctx -> {
+                            WaveManager.cancelAll(ctx.getSource().getServer());
+                            return say(ctx, "Oleadas canceladas.");
+                        })))
                 .then(CommandManager.literal("menu").executes(ctx -> {
                     ServerPlayerEntity player = ctx.getSource().getPlayer();
                     if (player == null) {

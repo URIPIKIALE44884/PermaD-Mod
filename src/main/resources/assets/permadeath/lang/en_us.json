@@ -5,8 +5,8 @@
   "item.permadeath.esencia_vital.tooltip": "Right click: spend 1 permanent heart",
   "item.permadeath.esencia_vital.tooltip2": "Full heal and temporary effects",
   "item.permadeath.totem_memoria": "Totem of Memory",
-  "item.permadeath.totem_memoria.tooltip": "Keep your inventory and XP when you die",
-  "item.permadeath.totem_memoria.tooltip2": "Consumed on death",
+  "item.permadeath.totem_memoria.tooltip": "Hold it in your hand when you die: keep inventory and XP",
+  "item.permadeath.totem_memoria.tooltip2": "Consumed on use",
   "item.permadeath.icono_hardcore": "Hardcore Heart",
   "itemGroup.permadeath.hardcore": "Hardcore",
   "msg.permadeath.hearts_max": "You already have the maximum permanent hearts.",
@@ -18,5 +18,9 @@
   "item.minecraft.lingering_potion.effect.antidoto": "Lingering Potion of Antidote",
   "item.minecraft.tipped_arrow.effect.antidoto": "Arrow of Antidote",
   "msg.permadeath.infected": "You are infected! Zombification: you cannot regenerate health.",
-  "msg.permadeath.infected_no_essence": "You cannot use Vital Essence while Zombified."
+  "msg.permadeath.infected_no_essence": "You cannot use Vital Essence while Zombified.",
+  "entity.permadeath.infected_zombie": "Infected Zombie",
+  "msg.permadeath.wave_incoming": "A wave is coming! It arrives in 3 minutes.",
+  "msg.permadeath.wave_start": "The wave begins!",
+  "msg.permadeath.wave_end": "You survived the wave!"
 }

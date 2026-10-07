@@ -5,6 +5,7 @@
 - corazon_permanente: +1 corazon permanente (maximo 20). Stack 16.
 - esencia_vital: gasta 1 corazon permanente, cura todo y da efectos. Stack 16. No sirve con Zombificacion.
 - totem_memoria: conserva inventario y experiencia al morir (por jugador). NO apilable.
+  Solo funciona si lo tenes EN LA MANO (principal o secundaria). Al reaparecer ves su animacion propia.
   Receta: fragmento de eco / totem de la inmortalidad / fragmento de eco (en columna).
 - Pocion de Antidoto (normal, arrojadiza y persistente), stack 32.
 - Pociones a 32; estofados y sopas en tazon a 16.
@@ -14,7 +15,9 @@
 
 **Zombificacion (infeccion zombi)** - se activa en la pantalla (Dificultad > Zombies > Activar infeccion)
 - 10 golpes de zombies en 3 minutos (editable) => efecto Zombificacion de 5 minutos (editable).
-- No deja regenerar vida (ni natural, ni pociones, ni comida). Al llegar a 0 el jugador muere.
+- Solo cuentan los golpes DIRECTOS: lo que bloquea el escudo no cuenta.
+- No deja regenerar vida (ni natural, ni pociones, ni comida). Al llegar a 0 el jugador muere
+  (en creativo y espectador no mata).
 - Morir con el efecto: -2 corazones permanentes EN TOTAL (en vez de -1), hasta un minimo de 3.
 - La leche NO lo borra. Cura: Pocion de Antidoto = soporte para pociones con una pocion de
   curacion o de regeneracion (cualquier nivel) + carne podrida.
@@ -28,6 +31,17 @@
 - Pestana Dificultad: infeccion zombi y sus numeros.
 - Todo arranca en vanilla y solo afecta a mobs que aparecen DESPUES de configurar.
 - Tambien hay comandos: /permadeath list | show <mob> | set ... | default <mob> | reset | infection <true|false>
+
+**Zombie infectado:** si un jugador muere con Zombificacion (por cualquier causa), aparece en ese lugar un
+zombie con SU skin, nombre en rojo con un icono de zombie, +2 filas de corazones, Fuerza I y Resistencia al fuego.
+
+**Oleada** (pestana "Oleada" de la pantalla, o /permadeath wave start | cancel; solo operadores)
+- Se genera para TODOS los jugadores conectados. Cuenta regresiva de 3 minutos (rojo y en negrita sobre la barra de inventario).
+- 10 zombies + 12 esqueletos (con tu configuracion de spawn) y, opcionales: 5 aranas (invisibles y rapidas),
+  5 creepers (no rompen bloques y solo danan a jugadores) y 2 esqueletos Wither.
+- Aparecen en tandas, a 10-15 bloques del jugador. Persiguen SOLO a su jugador aunque los ataquen.
+- Ponen andamios para subir y rompen bloques (velocidad de herramienta de diamante).
+- Durante la oleada la Zombificacion necesita 25 golpes. Si el jugador muere o se desconecta, la oleada se cancela.
 
 ## Todavia no hace (etapa 4)
 - Zombies con arco disparan, esqueletos levantan el escudo, daño de explosion del creeper e ignorar escudo,

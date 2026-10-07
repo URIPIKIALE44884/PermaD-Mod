@@ -6,7 +6,8 @@
   "mixins": [
     "MobEntityMixin",
     "CreeperEntityAccessor",
-    "LivingEntityMixin"
+    "LivingEntityMixin",
+    "CreeperEntityMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -11,6 +11,9 @@ public final class Networking {
     public static void init() {
         PayloadTypeRegistry.playS2C().register(ConfigPayload.ID, ConfigPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(InfectionPayload.ID, InfectionPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(TotemAnimationPayload.ID, TotemAnimationPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(WavePayload.ID, WavePayload.CODEC);
+        PayloadTypeRegistry.playC2S().register(WaveActionPayload.ID, WaveActionPayload.CODEC);
         PayloadTypeRegistry.playC2S().register(UpdatePayload.ID, UpdatePayload.CODEC);
         PayloadTypeRegistry.playC2S().register(ResetPayload.ID, ResetPayload.CODEC);
 
@@ -36,6 +39,20 @@ public final class Networking {
                 System.err.println("[permadeath] Paquete de configuracion invalido: " + e);
             }
             sendConfig(player, false);
+        });
+
+        ServerPlayNetworking.registerGlobalReceiver(WaveActionPayload.ID, (payload, context) -> {
+            ServerPlayerEntity player = context.player();
+            if (!player.hasPermissionLevel(2)) {
+                return;
+            }
+            if ("start".equals(payload.action())) {
+                int count = WaveManager.startAll(context.server());
+                player.sendMessage(net.minecraft.text.Text.literal("Oleada iniciada para " + count + " jugador(es)."), false);
+            } else if ("cancel".equals(payload.action())) {
+                WaveManager.cancelAll(context.server());
+                player.sendMessage(net.minecraft.text.Text.literal("Oleadas canceladas."), false);
+            }
         });
 
         ServerPlayNetworking.registerGlobalReceiver(ResetPayload.ID, (payload, context) -> {
