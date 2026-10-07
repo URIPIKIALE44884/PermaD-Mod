@@ -27,5 +27,3 @@ jobs:
         with:
           name: permadeath-jar
           path: build/libs/*.jar
-
-          
