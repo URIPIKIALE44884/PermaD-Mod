@@ -1,5 +1,5 @@
 plugins {
-	id 'fabric-loom' version '1.6.12'
+	id 'fabric-loom' version '1.6-SNAPSHOT'
 	id 'maven-publish'
 }
 
@@ -11,12 +11,6 @@ base {
 }
 
 repositories {
-	// Repositorios de dependencias del mod (Fabric API, Loader, Minecraft mappings, etc.)
-	maven {
-		name = "Fabric"
-		url = "https://maven.fabricmc.net/"
-	}
-	mavenCentral()
 }
 
 dependencies {

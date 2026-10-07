@@ -25,8 +25,8 @@ public final class ChestLoot {
     public static final float ESSENCE_CHANCE = 1.0f / 24.0f;
 
     public static void init() {
-        LootTableEvents.MODIFY.register((resourceManager, lootManager, id, tableBuilder, source) -> {
-            if (!source.isBuiltin() || !TARGETS.contains(id)) {
+        LootTableEvents.MODIFY.register((key, tableBuilder, source) -> {
+            if (!source.isBuiltin() || !TARGETS.contains(key.getValue())) {
                 return;
             }
             tableBuilder.pool(pool(ModItems.CORAZON, HEART_CHANCE));
