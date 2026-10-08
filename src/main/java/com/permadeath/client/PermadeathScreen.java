@@ -6,6 +6,7 @@ import java.util.function.IntConsumer;
 
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
+import org.lwjgl.glfw.GLFW;
 
 import com.google.gson.Gson;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -23,6 +24,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
@@ -34,8 +36,10 @@ import net.minecraft.text.Text;
 
 /**
  * Pantalla de administracion (/function permadeath:menu o /permadeath menu).
- * Pestana "Mobs": elegir mob (huevos de spawn), modelo 3D girando a la izquierda y opciones a la derecha.
- * Pestana "Dificultad": reglas globales (infeccion zombi).
+ * - Mobs: elegir mob (huevos de spawn), modelo 3D girando a la izquierda y opciones a la derecha.
+ *   Armadura: 4 piezas con sus materiales (clic der. = activar/desactivar, clic central = probabilidad).
+ * - Dificultad: infeccion zombi.
+ * - Oleada: cantidad de cada mob, generar y cancelar.
  */
 public class PermadeathScreen extends Screen {
     private static final Gson GSON = new Gson();
@@ -53,8 +57,8 @@ public class PermadeathScreen extends Screen {
     private static final String[] EFFECT_NAMES = { "Velocidad", "Fuerza", "Resistencia", "Regeneración",
             "Res. al fuego", "Invisibilidad", "Salto" };
     private static final String[] LEVEL_NAMES = { "Off", "I", "II", "III" };
-    private static final String[] ARMOR_NAMES = { "Nivel 1: Full hierro", "Nivel 2: Full diamante",
-            "Nivel 3: Full netherita" };
+    private static final String[] PIECE_NAMES = { "Casco", "Peto", "Pantalones", "Botas" };
+    private static final String[] MATERIAL_NAMES = { "Cuero", "Malla", "Oro", "Hierro", "Diamante", "Netherita" };
     private static final String[] DIM_IDS = { "overworld", "nether", "end" };
     private static final String[] DIM_NAMES = { "Overworld", "Nether", "End" };
 
@@ -70,6 +74,12 @@ public class PermadeathScreen extends Screen {
     private int left;
     private int top;
     private LivingEntity preview;
+
+    // armadura
+    private int armorSlot = 0;
+    private int armorSelectedMaterial = -1;
+    private TextFieldWidget editField;
+    private int editMaterial = -1;
 
     public PermadeathScreen(ConfigData data) {
         super(Text.literal("Permadeath"));
@@ -95,6 +105,8 @@ public class PermadeathScreen extends Screen {
     protected void init() {
         left = (this.width - PANEL_W) / 2;
         top = Math.max(2, (this.height - PANEL_H) / 2);
+        editField = null;
+        editMaterial = -1;
 
         addDrawableChild(ButtonWidget.builder(Text.literal(tab == Tab.MOBS ? "[Mobs]" : "Mobs"), b -> {
             tab = Tab.MOBS;
@@ -191,15 +203,15 @@ public class PermadeathScreen extends Screen {
                 }
             }
             case ARMADURA -> {
-                for (int i = 0; i < 3; i++) {
-                    final int idx = i;
-                    addSlider(optX, y0 + i * 22, optW, ARMOR_NAMES[i] + "  P", "%", 0, 100, s.armorChance[i],
-                            v -> s.armorChance[idx] = v,
-                            () -> {
-                                sendMob();
-                                refreshPreview();
-                            });
-                }
+                // campo para escribir la probabilidad (clic central sobre un material)
+                editField = new TextFieldWidget(this.textRenderer, optX + 158, y0 + 4, 52, 16, Text.empty());
+                editField.setMaxLength(3);
+                editField.setTextPredicate(text -> text.matches("[0-9]{0,3}"));
+                editField.setVisible(false);
+                addDrawableChild(editField);
+
+                addSlider(optX, y0 + 90, optW, "Encantadas (Protección I-IV)", "%", 0, 100, s.armorEnchantChance,
+                        v -> s.armorEnchantChance = v, this::sendMob);
             }
             case EFECTOS -> {
                 for (int i = 0; i < EFFECT_KEYS.length; i++) {
@@ -262,10 +274,14 @@ public class PermadeathScreen extends Screen {
         }).dimensions(x, top + 56, w, 20).build());
         addSlider(x, top + 82, w, "Golpes necesarios", "", 1, 30, g.infectionHits,
                 v -> g.infectionHits = v, this::sendGlobal);
-        addSlider(x, top + 104, w, "Ventana de tiempo (segundos)", "", 30, 600, g.infectionWindowSeconds,
+        addSlider(x, top + 104, w, "Reinicio del contador sin golpes (segundos)", "", 30, 600, g.infectionWindowSeconds,
                 v -> g.infectionWindowSeconds = v, this::sendGlobal);
         addSlider(x, top + 126, w, "Duración del efecto (segundos)", "", 60, 900, g.infectionDurationSeconds,
                 v -> g.infectionDurationSeconds = v, this::sendGlobal);
+    }
+
+    private static String infectionText(GlobalSettings g) {
+        return "Activar infección: " + (g.infectionEnabled ? "Sí" : "No");
     }
 
     private void initWave() {
@@ -273,50 +289,18 @@ public class PermadeathScreen extends Screen {
         int x = left + 12;
         int w = PANEL_W - 24;
 
-        addDrawableChild(ButtonWidget.builder(Text.literal(waveToggleText("Arañas (5, invisibles y rápidas)", g.waveSpiders)), b -> {
-            g.waveSpiders = !g.waveSpiders;
-            b.setMessage(Text.literal(waveToggleText("Arañas (5, invisibles y rápidas)", g.waveSpiders)));
-            sendGlobal();
-        }).dimensions(x, top + 56, w, 20).build());
-        addDrawableChild(ButtonWidget.builder(Text.literal(waveToggleText("Creepers (5, sin romper bloques)", g.waveCreepers)), b -> {
-            g.waveCreepers = !g.waveCreepers;
-            b.setMessage(Text.literal(waveToggleText("Creepers (5, sin romper bloques)", g.waveCreepers)));
-            sendGlobal();
-        }).dimensions(x, top + 80, w, 20).build());
-        addDrawableChild(ButtonWidget.builder(Text.literal(waveToggleText("Esqueletos Wither (2)", g.waveWither)), b -> {
-            g.waveWither = !g.waveWither;
-            b.setMessage(Text.literal(waveToggleText("Esqueletos Wither (2)", g.waveWither)));
-            sendGlobal();
-        }).dimensions(x, top + 104, w, 20).build());
+        addSlider(x, top + 50, w, "Zombies", "", 0, 60, g.waveZombieCount, v -> g.waveZombieCount = v, this::sendGlobal);
+        addSlider(x, top + 72, w, "Esqueletos", "", 0, 60, g.waveSkeletonCount, v -> g.waveSkeletonCount = v, this::sendGlobal);
+        addSlider(x, top + 94, w, "Arañas (invisibles y rápidas)", "", 0, 30, g.waveSpiderCount, v -> g.waveSpiderCount = v, this::sendGlobal);
+        addSlider(x, top + 116, w, "Creepers (sin romper bloques)", "", 0, 30, g.waveCreeperCount, v -> g.waveCreeperCount = v, this::sendGlobal);
+        addSlider(x, top + 138, w, "Esqueletos Wither", "", 0, 10, g.waveWitherCount, v -> g.waveWitherCount = v, this::sendGlobal);
 
         addDrawableChild(ButtonWidget.builder(Text.literal("Generar oleada (todos los jugadores conectados)"),
                 b -> ClientPlayNetworking.send(new WaveActionPayload("start")))
-                .dimensions(x, top + 136, w, 20).build());
+                .dimensions(x, top + 166, w, 20).build());
         addDrawableChild(ButtonWidget.builder(Text.literal("Cancelar oleadas"),
                 b -> ClientPlayNetworking.send(new WaveActionPayload("cancel")))
-                .dimensions(x, top + 160, w, 20).build());
-    }
-
-    private static String waveToggleText(String label, boolean on) {
-        return label + ": " + (on ? "Sí" : "No");
-    }
-
-    private void drawWaveTexts(DrawContext context) {
-        context.drawText(this.textRenderer, Text.literal("Oleada"), left + 12, top + 38, 0xFF202020, false);
-        String[] lines = {
-                "Siempre: 10 zombies y 12 esqueletos (con tu configuración de spawn).",
-                "Llega en 3 minutos y aparece en tandas, a 10-15 bloques del jugador.",
-                "Persiguen solo a su jugador, ponen andamios y rompen bloques.",
-                "Durante la oleada la infección necesita 25 golpes." };
-        int y = top + 190;
-        for (String line : lines) {
-            context.drawText(this.textRenderer, Text.literal(line), left + 12, y, 0xFF404040, false);
-            y += 12;
-        }
-    }
-
-    private static String infectionText(GlobalSettings g) {
-        return "Activar infección: " + (g.infectionEnabled ? "Sí" : "No");
+                .dimensions(x, top + 190, w, 20).build());
     }
 
     // ------------------------------------------------------------ red
@@ -329,10 +313,127 @@ public class PermadeathScreen extends Screen {
         ClientPlayNetworking.send(new UpdatePayload("global", GSON.toJson(data.global)));
     }
 
+    // ------------------------------------------------------------ armadura: datos
+    private boolean armorVisible() {
+        return tab == Tab.MOBS && section == Section.ARMADURA
+                && (selected.family == MobKind.Family.ZOMBIE || selected.family == MobKind.Family.SKELETON);
+    }
+
+    private int[] armorArray() {
+        MobSettings s = data.mobs.get(selected.id);
+        int[] values = s.armor.get(MobShaper.ARMOR_KEYS[armorSlot]);
+        if (values == null || values.length < 6) {
+            values = new int[] { -1, -1, -1, -1, -1, -1 };
+            s.armor.put(MobShaper.ARMOR_KEYS[armorSlot], values);
+        }
+        return values;
+    }
+
+    private int sumOthers(int[] values, int except) {
+        int sum = 0;
+        for (int i = 0; i < values.length; i++) {
+            if (i != except && values[i] > 0) {
+                sum += values[i];
+            }
+        }
+        return sum;
+    }
+
+    /** Cambia la probabilidad de un material. La suma de la pieza nunca pasa de 100%. */
+    private void setMaterial(int material, int value) {
+        int[] values = armorArray();
+        if (values[material] < 0) {
+            return;
+        }
+        values[material] = Math.max(0, Math.min(value, 100 - sumOthers(values, material)));
+        sendMob();
+        refreshPreview();
+    }
+
+    /** Clic derecho: activa o desactiva (X) un material. */
+    private void toggleMaterial(int material) {
+        int[] values = armorArray();
+        if (values[material] >= 0) {
+            values[material] = -1;
+        } else {
+            values[material] = Math.min(10, 100 - sumOthers(values, material));
+        }
+        sendMob();
+        refreshPreview();
+    }
+
+    private void startEdit(int material) {
+        int[] values = armorArray();
+        if (editField == null || values[material] < 0) {
+            return;
+        }
+        editMaterial = material;
+        armorSelectedMaterial = material;
+        editField.setText(String.valueOf(values[material]));
+        editField.setVisible(true);
+        this.setFocused(editField);
+    }
+
+    private void commitEdit() {
+        if (editMaterial < 0 || editField == null) {
+            return;
+        }
+        int value = 0;
+        try {
+            value = Integer.parseInt(editField.getText());
+        } catch (NumberFormatException ignored) {
+            // vacio: queda en 0
+        }
+        setMaterial(editMaterial, value);
+        cancelEdit();
+    }
+
+    private void cancelEdit() {
+        editMaterial = -1;
+        if (editField != null) {
+            editField.setVisible(false);
+        }
+        this.setFocused(null);
+    }
+
+    private int socketX(int index) {
+        return left + 98 + index * 30;
+    }
+
+    private int socketY() {
+        return top + 78;
+    }
+
+    private int materialX(int index) {
+        return left + 98 + index * 37;
+    }
+
+    private int materialY() {
+        return top + 108;
+    }
+
+    private int socketAt(double mouseX, double mouseY) {
+        for (int i = 0; i < 4; i++) {
+            if (mouseX >= socketX(i) && mouseX < socketX(i) + 24 && mouseY >= socketY() && mouseY < socketY() + 24) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    private int materialAt(double mouseX, double mouseY) {
+        for (int i = 0; i < 6; i++) {
+            if (mouseX >= materialX(i) && mouseX < materialX(i) + 32 && mouseY >= materialY() && mouseY < materialY() + 32) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
     // ------------------------------------------------------------ dibujo
     /**
      * Vacio a proposito: segun la version, Screen.render() vuelve a dibujar el fondo (oscurecido/difuminado)
-     * ENCIMA de lo que ya dibujamos, y por eso el panel y los mobs se veian borrosos.
+     * ENCIMA de lo que ya dibujamos. Oscurecemos el mundo nosotros en render().
      */
     @Override
     public void renderBackground(DrawContext context, int mouseX, int mouseY, float delta) {
@@ -340,7 +441,6 @@ public class PermadeathScreen extends Screen {
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        // oscurecemos el mundo nosotros (sin el fondo del juego, que difuminaba el panel y los mobs)
         context.fill(0, 0, this.width, this.height, 0x90000000);
         drawPanel(context);
         if (tab == Tab.MOBS) {
@@ -351,12 +451,19 @@ public class PermadeathScreen extends Screen {
             drawWaveTexts(context);
         }
         super.render(context, mouseX, mouseY, delta);
+
         if (tab == Tab.MOBS) {
             drawEggs(context);
             if (preview != null) {
                 drawEntity(context, left + 49, top + PANEL_H - 22, 48, preview);
             }
+            if (armorVisible()) {
+                drawArmorUi(context);
+            }
             drawEggTooltip(context, mouseX, mouseY);
+            if (armorVisible()) {
+                drawArmorTooltip(context, mouseX, mouseY);
+            }
         }
     }
 
@@ -384,6 +491,7 @@ public class PermadeathScreen extends Screen {
                 left + 49, top + 57, 0xFFFFFFFF);
     }
 
+    /** Los huevos se dibujan despues de los widgets para que queden nitidos. */
     private void drawEggs(DrawContext context) {
         MobKind[] kinds = MobKind.values();
         for (int i = 0; i < kinds.length; i++) {
@@ -404,20 +512,117 @@ public class PermadeathScreen extends Screen {
         }
     }
 
+    private void drawText(DrawContext context, String text, int x, int y, int color) {
+        context.drawText(this.textRenderer, Text.literal(text), x, y, color, false);
+    }
+
+    private void drawCentered(DrawContext context, String text, int centerX, int y, int color) {
+        int width = this.textRenderer.getWidth(text);
+        context.drawText(this.textRenderer, Text.literal(text), centerX - width / 2, y, color, false);
+    }
+
+    /** Sockets de pieza (vacios) y, debajo, los materiales de la pieza elegida. */
+    private void drawArmorUi(DrawContext context) {
+        int optX = left + 98;
+        int y0 = top + 78;
+        int[] values = armorArray();
+        MatrixStack matrices = context.getMatrices();
+
+        // sockets vacios: la pieza se ve "fantasma"
+        for (int i = 0; i < 4; i++) {
+            int x = socketX(i);
+            boolean isSelected = i == armorSlot;
+            context.fill(x - 1, y0 - 1, x + 25, y0 + 25, isSelected ? 0xFF2E7D32 : 0xFF8B8B8B);
+            context.fill(x, y0, x + 24, y0 + 24, 0xFF373737);
+            context.drawItem(new ItemStack(MobShaper.ARMOR_ITEMS[i][3]), x + 4, y0 + 4);
+            matrices.push();
+            matrices.translate(0.0, 0.0, 200.0);
+            context.fill(x, y0, x + 24, y0 + 24, 0xB0373737);
+            matrices.pop();
+        }
+        if (editMaterial >= 0) {
+            drawText(context, "Prob. %:", optX + 118, y0 + 8, 0xFF202020);
+        }
+
+        // materiales de la pieza elegida
+        for (int j = 0; j < 6; j++) {
+            int x = materialX(j);
+            int y = materialY();
+            int value = values[j];
+            boolean isSelected = j == armorSelectedMaterial;
+            context.fill(x - 1, y - 1, x + 33, y + 33, isSelected ? 0xFFFFFF55 : (value >= 0 ? 0xFF8B8B8B : 0xFF7A3A3A));
+            context.fill(x, y, x + 32, y + 32, 0xFF373737);
+
+            matrices.push();
+            matrices.translate((double) x, (double) y, 0.0);
+            matrices.scale(2.0f, 2.0f, 1.0f);
+            context.drawItem(new ItemStack(MobShaper.ARMOR_ITEMS[armorSlot][j]), 0, 0);
+            matrices.pop();
+
+            if (value < 0) {
+                matrices.push();
+                matrices.translate(0.0, 0.0, 200.0);
+                context.fill(x, y, x + 32, y + 32, 0xB0000000);
+                drawCentered(context, "X", x + 16, y + 12, 0xFFFF5555);
+                matrices.pop();
+            }
+            drawCentered(context, value < 0 ? "X" : value + "%", x + 16, y + 36, 0xFF202020);
+        }
+
+        int total = 0;
+        boolean configured = false;
+        for (int v : values) {
+            if (v > 0) {
+                total += v;
+            }
+            if (v >= 0) {
+                configured = true;
+            }
+        }
+        String summary = configured
+                ? PIECE_NAMES[armorSlot] + ": total " + total + "%  -  sin pieza " + (100 - total) + "%"
+                : PIECE_NAMES[armorSlot] + ": sin configurar (equipo vanilla)";
+        drawText(context, summary, optX, y0 + 78, 0xFF202020);
+
+        drawText(context, "Prot. I 50% - II 30% - III 15% - IV 5% (de las encantadas)", optX, y0 + 112, 0xFF404040);
+        drawText(context, "Clic der.: activar/desactivar (X)  -  Rueda: +/-5%", optX, y0 + 124, 0xFF404040);
+        drawText(context, "Clic central: escribir la probabilidad (Enter)", optX, y0 + 134, 0xFF404040);
+    }
+
+    private void drawArmorTooltip(DrawContext context, int mouseX, int mouseY) {
+        int material = materialAt(mouseX, mouseY);
+        if (material >= 0) {
+            int value = armorArray()[material];
+            String text = MATERIAL_NAMES[material] + ": " + (value < 0 ? "desactivado" : value + "%");
+            context.drawTooltip(this.textRenderer, Text.literal(text), mouseX, mouseY);
+            return;
+        }
+        int socket = socketAt(mouseX, mouseY);
+        if (socket >= 0) {
+            context.drawTooltip(this.textRenderer, Text.literal(PIECE_NAMES[socket]), mouseX, mouseY);
+        }
+    }
+
     private void drawDifficultyTexts(DrawContext context) {
         GlobalSettings g = data.global;
-        context.drawText(this.textRenderer, Text.literal("Zombies"), left + 12, top + 38, 0xFF202020, false);
+        drawText(context, "Zombies", left + 12, top + 38, 0xFF202020);
         int y = top + 156;
         String[] lines = {
-                "Si un jugador recibe " + g.infectionHits + " golpes de zombies en " + g.infectionWindowSeconds + " s,",
-                "se infecta: Zombificación durante " + g.infectionDurationSeconds + " s.",
-                "Sin regeneración de vida; al llegar a 0 el jugador muere.",
-                "Morir infectado: -2 corazones permanentes (mínimo 3).",
+                "Cada golpe directo de zombie suma al contador; con " + g.infectionHits + " golpes te infectás.",
+                "Si pasan " + g.infectionWindowSeconds + " s sin recibir un golpe de zombie, el contador vuelve a 0.",
+                "Zombificación durante " + g.infectionDurationSeconds + " s: sin regenerar vida; al llegar a 0 morís.",
+                "Morir infectado: -2 corazones permanentes (mínimo 3) y aparece tu zombie.",
                 "Cura: Antídoto (poción de curación o regeneración + carne podrida)." };
         for (String line : lines) {
-            context.drawText(this.textRenderer, Text.literal(line), left + 12, y, 0xFF404040, false);
+            drawText(context, line, left + 12, y, 0xFF404040);
             y += 12;
         }
+    }
+
+    private void drawWaveTexts(DrawContext context) {
+        drawText(context, "Oleada: cantidad de cada mob (0 = no aparece)", left + 12, top + 36, 0xFF202020);
+        drawText(context, "Llega en 3 min, en tandas a 10-15 bloques; si sobrevivís 5 min, desaparecen.", left + 12, top + 218, 0xFF404040);
+        drawText(context, "Persiguen solo a su jugador. Durante la oleada la infección necesita 25 golpes.", left + 12, top + 230, 0xFF404040);
     }
 
     // ------------------------------------------------------------ vista previa 3D
@@ -434,12 +639,22 @@ public class PermadeathScreen extends Screen {
         preview = living;
         MobSettings s = data.mobs.get(selected.id);
         if (s != null && (selected.family == MobKind.Family.ZOMBIE || selected.family == MobKind.Family.SKELETON)) {
-            for (int level = 3; level >= 1; level--) {
-                if (s.armorChance[level - 1] > 0) {
-                    for (int i = 0; i < MobShaper.ARMOR_SLOTS.length; i++) {
-                        living.equipStack(MobShaper.ARMOR_SLOTS[i], new ItemStack(MobShaper.ARMOR[level - 1][i]));
+            // en la vista previa se muestra, por pieza, el material con mas probabilidad
+            for (int slot = 0; slot < MobShaper.ARMOR_KEYS.length; slot++) {
+                int[] values = s.armor.get(MobShaper.ARMOR_KEYS[slot]);
+                if (values == null) {
+                    continue;
+                }
+                int best = -1;
+                int bestValue = 0;
+                for (int m = 0; m < values.length; m++) {
+                    if (values[m] > bestValue) {
+                        bestValue = values[m];
+                        best = m;
                     }
-                    break;
+                }
+                if (best >= 0) {
+                    living.equipStack(MobShaper.ARMOR_SLOTS[slot], new ItemStack(MobShaper.ARMOR_ITEMS[slot][best]));
                 }
             }
         }
@@ -473,7 +688,7 @@ public class PermadeathScreen extends Screen {
         matrices.pop();
     }
 
-    // ------------------------------------------------------------ mouse
+    // ------------------------------------------------------------ mouse y teclado
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (tab == Tab.MOBS && button == 0) {
@@ -486,6 +701,58 @@ public class PermadeathScreen extends Screen {
                 }
             }
         }
+
+        if (armorVisible()) {
+            int socket = socketAt(mouseX, mouseY);
+            if (socket >= 0 && button == 0) {
+                armorSlot = socket;
+                armorSelectedMaterial = -1;
+                cancelEdit();
+                return true;
+            }
+            int material = materialAt(mouseX, mouseY);
+            if (material >= 0) {
+                if (button == 0) {
+                    armorSelectedMaterial = material;
+                } else if (button == 1) {
+                    cancelEdit();
+                    toggleMaterial(material);
+                } else if (button == 2) {
+                    startEdit(material);
+                }
+                return true;
+            }
+        }
         return super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
+        if (armorVisible()) {
+            int material = materialAt(mouseX, mouseY);
+            if (material >= 0) {
+                int[] values = armorArray();
+                if (values[material] >= 0) {
+                    setMaterial(material, values[material] + (verticalAmount > 0 ? 5 : -5));
+                }
+                return true;
+            }
+        }
+        return super.mouseScrolled(mouseX, mouseY, horizontalAmount, verticalAmount);
+    }
+
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        if (editMaterial >= 0) {
+            if (keyCode == GLFW.GLFW_KEY_ENTER || keyCode == GLFW.GLFW_KEY_KP_ENTER) {
+                commitEdit();
+                return true;
+            }
+            if (keyCode == GLFW.GLFW_KEY_ESCAPE) {
+                cancelEdit();
+                return true;
+            }
+        }
+        return super.keyPressed(keyCode, scanCode, modifiers);
     }
 }

@@ -64,6 +64,8 @@ public final class WaveManager {
     };
 
     private static final int COUNTDOWN_TICKS = 3 * 60 * 20;
+    /** Si el jugador sobrevive 5 minutos de oleada activa, los mobs desaparecen y la oleada termina. */
+    private static final int MAX_ACTIVE_TICKS = 5 * 60 * 20;
     private static final int BATCH_SIZE = 3;
     private static final int BATCH_INTERVAL = 60;
     private static final int RADIUS_MIN = 10;
@@ -89,6 +91,7 @@ public final class WaveManager {
         boolean active = false;
         boolean finished = false;
         int spawnCooldown = 0;
+        int activeTicks = 0;
         final ArrayDeque<MobKind> queue = new ArrayDeque<>();
         final List<UUID> mobs = new ArrayList<>();
         final Map<UUID, MobState> states = new HashMap<>();
@@ -128,16 +131,13 @@ public final class WaveManager {
         }
         GlobalSettings settings = ModConfig.global();
         List<MobKind> list = new ArrayList<>();
-        add(list, MobKind.ZOMBIE, 10);
-        add(list, MobKind.SKELETON, 12);
-        if (settings.waveSpiders) {
-            add(list, MobKind.SPIDER, 5);
-        }
-        if (settings.waveCreepers) {
-            add(list, MobKind.CREEPER, 5);
-        }
-        if (settings.waveWither) {
-            add(list, MobKind.WITHER_SKELETON, 2);
+        add(list, MobKind.ZOMBIE, settings.waveZombieCount);
+        add(list, MobKind.SKELETON, settings.waveSkeletonCount);
+        add(list, MobKind.SPIDER, settings.waveSpiderCount);
+        add(list, MobKind.CREEPER, settings.waveCreeperCount);
+        add(list, MobKind.WITHER_SKELETON, settings.waveWitherCount);
+        if (list.isEmpty()) {
+            return false;
         }
         Collections.shuffle(list, RANDOM);
 
@@ -228,7 +228,30 @@ public final class WaveManager {
         }
     }
 
+    /** Elimina del mundo a todos los mobs de una oleada. */
+    private static void discardMobs(Wave wave, MinecraftServer server) {
+        for (UUID mobId : wave.mobs) {
+            TRACKED.remove(mobId);
+            for (ServerWorld world : server.getWorlds()) {
+                Entity entity = world.getEntity(mobId);
+                if (entity != null) {
+                    entity.discard();
+                }
+            }
+        }
+    }
+
     private static void tickActive(ServerWorld world, ServerPlayerEntity player, Wave wave) {
+        wave.activeTicks++;
+        if (wave.activeTicks >= MAX_ACTIVE_TICKS) {
+            // el jugador sobrevivio 5 minutos: los mobs de la oleada desaparecen y la oleada termina
+            discardMobs(wave, player.getServer());
+            wave.mobs.clear();
+            wave.queue.clear();
+            wave.finished = true;
+            return;
+        }
+
         if (wave.spawnCooldown > 0) {
             wave.spawnCooldown--;
         } else if (!wave.queue.isEmpty()) {
@@ -260,7 +283,7 @@ public final class WaveManager {
 
     private static void sendHud(ServerPlayerEntity player, Wave wave) {
         int mode = wave.active ? 2 : 1;
-        int seconds = wave.active ? 0 : (wave.countdown + 19) / 20;
+        int seconds = wave.active ? (MAX_ACTIVE_TICKS - wave.activeTicks + 19) / 20 : (wave.countdown + 19) / 20;
         int remaining = wave.mobs.size() + wave.queue.size();
         if (mode != wave.lastMode || seconds != wave.lastSeconds || remaining != wave.lastRemaining) {
             wave.lastMode = mode;

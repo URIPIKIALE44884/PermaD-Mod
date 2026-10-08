@@ -33,11 +33,12 @@ public final class InfectionHud {
         // contador de la oleada: rojo y en negrita, sobre la barra de inventario
         if (ClientState.waveMode != 0) {
             String label;
+            long waveSeconds = Math.max(0L, (ClientState.waveExpiresAtMillis - now) / 1000L);
+            String time = String.format("%d:%02d", waveSeconds / 60L, waveSeconds % 60L);
             if (ClientState.waveMode == 1) {
-                long seconds = Math.max(0L, (ClientState.waveExpiresAtMillis - now) / 1000L);
-                label = String.format("OLEADA EN %d:%02d", seconds / 60L, seconds % 60L);
+                label = "OLEADA EN " + time;
             } else {
-                label = "OLEADA: " + ClientState.waveRemaining + " mobs";
+                label = "OLEADA: " + ClientState.waveRemaining + " mobs (" + time + ")";
             }
             Text text = Text.literal(label).formatted(Formatting.RED, Formatting.BOLD);
             int centerX = context.getScaledWindowWidth() / 2;

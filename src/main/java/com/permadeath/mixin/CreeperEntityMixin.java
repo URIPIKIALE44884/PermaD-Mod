@@ -1,6 +1,5 @@
 package com.permadeath.mixin;
 
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -9,7 +8,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.permadeath.WaveManager;
 
-import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.mob.CreeperEntity;
 import net.minecraft.world.World;
 
@@ -22,10 +20,6 @@ public abstract class CreeperEntityMixin {
     @Shadow
     private int explosionRadius;
 
-    @Shadow
-    @Final
-    private static TrackedData<Boolean> CHARGED;
-
     @Inject(method = "explode", at = @At("HEAD"), cancellable = true)
     private void permadeath$waveExplosion(CallbackInfo ci) {
         CreeperEntity self = (CreeperEntity) (Object) this;
@@ -34,8 +28,7 @@ public abstract class CreeperEntityMixin {
         }
         World world = self.getWorld();
         if (!world.isClient) {
-            boolean charged = self.getDataTracker().get(CHARGED);
-            float multiplier = charged ? 2.0f : 1.0f;
+            float multiplier = self.isCharged() ? 2.0f : 1.0f;
             world.createExplosion(self, null, WaveManager.PLAYER_ONLY_EXPLOSION,
                     self.getX(), self.getY(), self.getZ(),
                     this.explosionRadius * multiplier, false, World.ExplosionSourceType.NONE);

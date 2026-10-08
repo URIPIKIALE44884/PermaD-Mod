@@ -53,7 +53,7 @@ public final class ClientState {
     public static void onWave(WavePayload payload) {
         waveMode = payload.mode();
         waveRemaining = payload.remaining();
-        waveExpiresAtMillis = payload.mode() == 1 ? System.currentTimeMillis() + payload.seconds() * 1000L : 0L;
+        waveExpiresAtMillis = payload.seconds() > 0 ? System.currentTimeMillis() + payload.seconds() * 1000L : 0L;
     }
 
     public static void onInfection(InfectionPayload payload) {

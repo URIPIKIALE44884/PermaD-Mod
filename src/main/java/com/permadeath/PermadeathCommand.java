@@ -1,6 +1,7 @@
 package com.permadeath;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -18,8 +19,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 
 /**
- * Configuracion por comandos (solo operadores). La pantalla de la etapa 3
- * va a editar exactamente estos mismos datos.
+ * Configuracion por comandos (solo operadores). La pantalla edita exactamente estos mismos datos.
  */
 public final class PermadeathCommand {
     private PermadeathCommand() {}
@@ -76,14 +76,18 @@ public final class PermadeathCommand {
                                             return saved(ctx, kind, "probabilidad general = " + s.chance + "%");
                                         }))))
                         .then(CommandManager.literal("armor")
-                                .then(CommandManager.argument("nivel", IntegerArgumentType.integer(1, 3))
-                                        .then(CommandManager.argument("prob", IntegerArgumentType.integer(0, 100))
-                                                .executes(ctx -> withMob(ctx, (kind, s) -> {
-                                                    int level = IntegerArgumentType.getInteger(ctx, "nivel");
-                                                    int prob = IntegerArgumentType.getInteger(ctx, "prob");
-                                                    s.armorChance[level - 1] = prob;
-                                                    return saved(ctx, kind, "armadura nivel " + level + " = " + prob + "%");
-                                                })))))
+                                .then(CommandManager.argument("pieza", StringArgumentType.word())
+                                        .suggests((ctx, builder) -> CommandSource.suggestMatching(List.of(MobShaper.ARMOR_KEYS), builder))
+                                        .then(CommandManager.argument("material", StringArgumentType.word())
+                                                .suggests((ctx, builder) -> CommandSource.suggestMatching(List.of(MobShaper.MATERIAL_KEYS), builder))
+                                                .then(CommandManager.argument("prob", IntegerArgumentType.integer(-1, 100))
+                                                        .executes(ctx -> withMob(ctx, (kind, s) -> setArmor(ctx, kind, s)))))))
+                        .then(CommandManager.literal("enchant")
+                                .then(CommandManager.argument("prob", IntegerArgumentType.integer(0, 100))
+                                        .executes(ctx -> withMob(ctx, (kind, s) -> {
+                                            s.armorEnchantChance = IntegerArgumentType.getInteger(ctx, "prob");
+                                            return saved(ctx, kind, "armaduras encantadas (Proteccion I-IV) = " + s.armorEnchantChance + "%");
+                                        }))))
                         .then(CommandManager.literal("special")
                                 .then(CommandManager.argument("prob", IntegerArgumentType.integer(0, 100))
                                         .executes(ctx -> withMob(ctx, (kind, s) -> {
@@ -140,6 +144,43 @@ public final class PermadeathCommand {
                                         })))))));
     }
 
+    // ---------------------------------------------------------------- armadura
+    private static int setArmor(CommandContext<ServerCommandSource> ctx, MobKind kind, MobSettings s) {
+        String piece = StringArgumentType.getString(ctx, "pieza");
+        String material = StringArgumentType.getString(ctx, "material");
+        int prob = IntegerArgumentType.getInteger(ctx, "prob");
+        int materialIndex = Arrays.asList(MobShaper.MATERIAL_KEYS).indexOf(material);
+        int[] values = s.armor.get(piece);
+        if (values == null || materialIndex < 0) {
+            return fail(ctx, "Pieza o material desconocido. Piezas: head, chest, legs, feet. "
+                    + "Materiales: leather, chainmail, gold, iron, diamond, netherite.");
+        }
+        int others = 0;
+        for (int i = 0; i < values.length; i++) {
+            if (i != materialIndex && values[i] > 0) {
+                others += values[i];
+            }
+        }
+        if (prob > 0 && others + prob > 100) {
+            return fail(ctx, "La suma de los materiales de esa pieza no puede pasar de 100% (los otros suman " + others + "%).");
+        }
+        values[materialIndex] = prob;
+        return saved(ctx, kind, piece + " / " + material + " = " + (prob < 0 ? "X (desactivado)" : prob + "%"));
+    }
+
+    private static String armorSummary(MobSettings s) {
+        StringBuilder sb = new StringBuilder();
+        for (String key : MobShaper.ARMOR_KEYS) {
+            int[] v = s.armor.get(key);
+            sb.append(key).append(" [");
+            for (int i = 0; i < v.length; i++) {
+                sb.append(i == 0 ? "" : " | ").append(v[i] < 0 ? "X" : String.valueOf(v[i]));
+            }
+            sb.append("] ");
+        }
+        return sb.toString().trim();
+    }
+
     // ---------------------------------------------------------------- helpers
     private interface MobAction {
         int run(MobKind kind, MobSettings settings);
@@ -177,8 +218,8 @@ public final class PermadeathCommand {
         StringBuilder sb = new StringBuilder();
         sb.append(kind.id).append(": probabilidad general ").append(s.chance).append("%");
         if (kind.family == MobKind.Family.ZOMBIE || kind.family == MobKind.Family.SKELETON) {
-            sb.append(" | armadura N1 (hierro) ").append(s.armorChance[0]).append("%, N2 (diamante) ")
-                    .append(s.armorChance[1]).append("%, N3 (netherita) ").append(s.armorChance[2]).append("%");
+            sb.append(" | armadura (cuero|malla|oro|hierro|diamante|netherita) ").append(armorSummary(s));
+            sb.append(" | encantadas ").append(s.armorEnchantChance).append("%");
             sb.append(" | equipo especial ").append(s.specialChance).append("%");
             sb.append(" | drop ").append(s.dropEquipment);
         }

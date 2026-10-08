@@ -14,7 +14,8 @@
 **Corazones permanentes:** de 5 a 20 corazones; cada muerte resta 1. Minimo real: 3 (solo por Zombificacion).
 
 **Zombificacion (infeccion zombi)** - se activa en la pantalla (Dificultad > Zombies > Activar infeccion)
-- 10 golpes de zombies en 3 minutos (editable) => efecto Zombificacion de 5 minutos (editable).
+- Cada golpe directo de zombie suma al contador (10 por defecto). Si pasan 3 minutos sin otro golpe
+  de zombie, el contador vuelve a 0. Al llegar al limite => Zombificacion de 5 minutos (editable).
 - Solo cuentan los golpes DIRECTOS: lo que bloquea el escudo no cuenta.
 - No deja regenerar vida (ni natural, ni pociones, ni comida). Al llegar a 0 el jugador muere
   (en creativo y espectador no mata).
@@ -25,9 +26,12 @@
 
 **Pantalla de administracion** (solo operadores): `/function permadeath:menu`  o  `/permadeath menu`
 - Pestana Mobs: elegir mob con los huevos de spawn, modelo 3D girando, y opciones: probabilidad,
-  armadura por niveles (hierro/diamante/netherita con su %), efectos con nivel y %, dimensiones,
-  equipo especial (zombies con arco, esqueletos con escudo y espada de piedra), radio del creeper.
-  Botones Default (el mob elegido) y Reset (todos).
+  ARMADURA POR PIEZA (casco, peto, pantalones, botas) con 6 materiales (cuero, malla, oro, hierro,
+  diamante, netherita): clic derecho activa/desactiva (X), clic central escribe la probabilidad, rueda +/-5%.
+  Las probabilidades de una pieza se suman y no pasan de 100%; lo que falta es la chance de salir SIN esa pieza.
+  Ej.: Casco -> 20 | X | X | 40 | 20 | 5. Chance de salir encantada (Proteccion I-IV: 50/30/15/5% por nivel).
+  Efectos con nivel y %, dimensiones, equipo especial (zombies con arco, esqueletos con escudo y espada
+  de piedra), radio del creeper. Botones Default (el mob elegido) y Reset (todos).
 - Pestana Dificultad: infeccion zombi y sus numeros.
 - Todo arranca en vanilla y solo afecta a mobs que aparecen DESPUES de configurar.
 - Tambien hay comandos: /permadeath list | show <mob> | set ... | default <mob> | reset | infection <true|false>
@@ -37,11 +41,15 @@ zombie con SU skin, nombre en rojo con un icono de zombie, +2 filas de corazones
 
 **Oleada** (pestana "Oleada" de la pantalla, o /permadeath wave start | cancel; solo operadores)
 - Se genera para TODOS los jugadores conectados. Cuenta regresiva de 3 minutos (rojo y en negrita sobre la barra de inventario).
-- 10 zombies + 12 esqueletos (con tu configuracion de spawn) y, opcionales: 5 aranas (invisibles y rapidas),
-  5 creepers (no rompen bloques y solo danan a jugadores) y 2 esqueletos Wither.
+- Cantidad configurable de cada mob (por defecto 10 zombies, 12 esqueletos, 5 aranas invisibles y rapidas,
+  5 creepers que no rompen bloques y solo danan a jugadores, 2 esqueletos Wither). 0 = no aparece.
+- Si el jugador sobrevive 5 minutos de oleada activa, los mobs desaparecen y la oleada termina.
 - Aparecen en tandas, a 10-15 bloques del jugador. Persiguen SOLO a su jugador aunque los ataquen.
 - Ponen andamios para subir y rompen bloques (velocidad de herramienta de diamante).
 - Durante la oleada la Zombificacion necesita 25 golpes. Si el jugador muere o se desconecta, la oleada se cancela.
+
+**Drops:** las armaduras puestas por el sistema que un zombie no podria tener de forma natural (netherita)
+nunca se sueltan, tampoco si el zombie se convierte en ahogado. El resto solo se suelta con "Drop del equipo".
 
 ## Todavia no hace (etapa 4)
 - Zombies con arco disparan, esqueletos levantan el escudo, daño de explosion del creeper e ignorar escudo,

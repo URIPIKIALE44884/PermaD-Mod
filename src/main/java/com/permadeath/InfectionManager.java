@@ -1,6 +1,5 @@
 package com.permadeath;
 
-import java.util.ArrayDeque;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -20,14 +19,16 @@ import net.minecraft.util.math.Vec3d;
 
 /**
  * Infeccion zombi:
- * - si estaba activada, cuenta los golpes de zombies al jugador en una ventana de tiempo;
+ * - cuenta los golpes DIRECTOS de zombies al jugador (lo que bloquea el escudo no cuenta);
+ * - si pasan N segundos sin recibir otro golpe de zombie, el contador vuelve a 0;
  * - al llegar al limite aplica Zombificacion (sin regeneracion, mata al llegar a 0);
  * - manda al cliente el conteo y el temporizador para mostrarlos en pantalla.
  */
 public final class InfectionManager {
     private InfectionManager() {}
 
-    private static final Map<UUID, ArrayDeque<Integer>> HITS = new ConcurrentHashMap<>();
+    /** jugador -> [golpes acumulados, tick del ultimo golpe] */
+    private static final Map<UUID, int[]> HITS = new ConcurrentHashMap<>();
     private static final Map<UUID, int[]> LAST_SENT = new ConcurrentHashMap<>();
 
     public static void init() {
@@ -62,8 +63,13 @@ public final class InfectionManager {
         return toPlayer.dotProduct(look) < 0.0;
     }
 
+    /** Durante una oleada activa se necesitan 25 golpes en vez de los configurados. */
+    private static int requiredHits(ServerPlayerEntity player, GlobalSettings settings) {
+        return WaveManager.isActive(player.getUuid()) ? WaveManager.INFECTION_HITS_DURING_WAVE : settings.infectionHits;
+    }
+
     private static void onHit(ServerPlayerEntity player, MobEntity attacker, DamageSource source) {
-        // los golpes bloqueados con escudo no cuentan: solo los golpes directos
+        // solo golpes directos: lo bloqueado con escudo no cuenta
         if (isShieldBlocked(player, source)) {
             return;
         }
@@ -80,29 +86,21 @@ public final class InfectionManager {
         }
 
         int now = player.getServer().getTicks();
-        ArrayDeque<Integer> hits = HITS.computeIfAbsent(player.getUuid(), id -> new ArrayDeque<>());
-        hits.addLast(now);
-        purge(hits, now, settings);
+        int window = settings.infectionWindowSeconds * 20;
+        int[] state = HITS.computeIfAbsent(player.getUuid(), id -> new int[] { 0, now });
+        if (state[0] > 0 && now - state[1] > window) {
+            state[0] = 0; // pasaron demasiados segundos desde el ultimo golpe
+        }
+        state[0]++;
+        state[1] = now;
 
-        if (hits.size() >= requiredHits(player, settings)) {
-            hits.clear();
+        if (state[0] >= requiredHits(player, settings)) {
+            state[0] = 0;
             player.addStatusEffect(new StatusEffectInstance(ModEffects.ZOMBIFICACION,
                     settings.infectionDurationSeconds * 20, 0, false, true, true));
             player.sendMessage(Text.translatable("msg.permadeath.infected"), true);
         }
-        sync(player, settings, now);
-    }
-
-    /** Durante una oleada activa se necesitan 25 golpes en vez de los configurados. */
-    private static int requiredHits(ServerPlayerEntity player, GlobalSettings settings) {
-        return WaveManager.isActive(player.getUuid()) ? WaveManager.INFECTION_HITS_DURING_WAVE : settings.infectionHits;
-    }
-
-    private static void purge(ArrayDeque<Integer> hits, int now, GlobalSettings settings) {
-        int window = settings.infectionWindowSeconds * 20;
-        while (!hits.isEmpty() && now - hits.peekFirst() > window) {
-            hits.pollFirst();
-        }
+        sync(player, settings);
     }
 
     private static void tick(MinecraftServer server) {
@@ -116,30 +114,30 @@ public final class InfectionManager {
                 continue;
             }
             if (now % 20 == 0) {
-                ArrayDeque<Integer> hits = HITS.get(player.getUuid());
-                if (hits != null) {
-                    purge(hits, now, settings);
+                int[] state = HITS.get(player.getUuid());
+                if (state != null && state[0] > 0 && now - state[1] > settings.infectionWindowSeconds * 20) {
+                    state[0] = 0; // 3 minutos (o lo configurado) sin golpes: el contador se reinicia
                 }
-                sync(player, settings, now);
+                sync(player, settings);
             }
         }
     }
 
     /** Manda el estado al cliente solo cuando cambia. */
-    private static void sync(ServerPlayerEntity player, GlobalSettings settings, int now) {
-        ArrayDeque<Integer> hits = HITS.get(player.getUuid());
+    private static void sync(ServerPlayerEntity player, GlobalSettings settings) {
+        int[] state = HITS.get(player.getUuid());
         StatusEffectInstance effect = player.getStatusEffect(ModEffects.ZOMBIFICACION);
-        int hitCount = hits == null ? 0 : hits.size();
+        int hitCount = state == null ? 0 : state[0];
         int needed = settings.infectionEnabled ? requiredHits(player, settings) : 0;
         int ticksLeft = effect == null ? 0 : effect.getDuration();
-        int[] state = new int[] { hitCount, needed, ticksLeft / 20 };
+        int[] now = new int[] { hitCount, needed, ticksLeft / 20 };
 
         int[] last = LAST_SENT.get(player.getUuid());
         boolean empty = hitCount == 0 && ticksLeft == 0;
-        if (last == null ? empty : java.util.Arrays.equals(last, state)) {
+        if (last == null ? empty : java.util.Arrays.equals(last, now)) {
             return;
         }
-        LAST_SENT.put(player.getUuid(), state);
+        LAST_SENT.put(player.getUuid(), now);
         ServerPlayNetworking.send(player, new InfectionPayload(hitCount, needed, ticksLeft));
     }
 }
