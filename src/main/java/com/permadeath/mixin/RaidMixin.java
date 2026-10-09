@@ -23,7 +23,7 @@ import net.minecraft.village.raid.Raid;
 /** Permite que Iceologers e Ilusioners se sumen a las oleadas con probabilidades configurables. */
 @Mixin(Raid.class)
 public abstract class RaidMixin {
-    private static final double ILLUSIONER_MAX_HEALTH = 60.0;
+    private static final float ILLUSIONER_MAX_HEALTH = 60.0f;
 
     @Inject(method = "spawnNextWave", at = @At("TAIL"), require = 0)
     private void permadeath$extraRaiders(BlockPos pos, CallbackInfo ci) {
