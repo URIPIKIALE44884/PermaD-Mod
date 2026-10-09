@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnReason;
+import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.mob.IllusionerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
@@ -13,8 +14,10 @@ import net.minecraft.world.gen.feature.DefaultFeatureConfig;
 import net.minecraft.world.gen.feature.Feature;
 import net.minecraft.world.gen.feature.util.FeatureContext;
 
-/** Un Ilusioner solitario en el bosque oscuro. Probabilidad por chunk nuevo configurable en el menu. */
+/** Ilusioner solitario en las mismas zonas nevadas que el Iceologer. */
 public class IllusionerFeature extends Feature<DefaultFeatureConfig> {
+    private static final double ILLUSIONER_MAX_HEALTH = 60.0;
+
     public IllusionerFeature(Codec<DefaultFeatureConfig> codec) {
         super(codec);
     }
@@ -38,6 +41,8 @@ public class IllusionerFeature extends Feature<DefaultFeatureConfig> {
         if (illusioner == null) {
             return false;
         }
+        illusioner.getAttributeInstance(EntityAttributes.GENERIC_MAX_HEALTH).setBaseValue(ILLUSIONER_MAX_HEALTH);
+        illusioner.setHealth(ILLUSIONER_MAX_HEALTH);
         illusioner.refreshPositionAndAngles(origin.getX() + 0.5, origin.getY(), origin.getZ() + 0.5,
                 random.nextFloat() * 360.0f, 0.0f);
         illusioner.initialize(world, world.getLocalDifficulty(illusioner.getBlockPos()), SpawnReason.STRUCTURE, null);
