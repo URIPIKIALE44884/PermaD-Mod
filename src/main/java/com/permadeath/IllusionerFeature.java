@@ -16,7 +16,7 @@ import net.minecraft.world.gen.feature.util.FeatureContext;
 
 /** Ilusioner solitario en las mismas zonas nevadas que el Iceologer. */
 public class IllusionerFeature extends Feature<DefaultFeatureConfig> {
-    private static final double ILLUSIONER_MAX_HEALTH = 60.0;
+    private static final float ILLUSIONER_MAX_HEALTH = 60.0f;
 
     public IllusionerFeature(Codec<DefaultFeatureConfig> codec) {
         super(codec);
