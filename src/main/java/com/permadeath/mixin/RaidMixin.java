@@ -14,7 +14,7 @@ import com.permadeath.ModEntities;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.mob.IllusionerEntity;
-import net.minecraft.entity.mob.RaiderEntity;
+import net.minecraft.entity.raid.RaiderEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.random.Random;
