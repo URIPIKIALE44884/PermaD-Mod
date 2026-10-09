@@ -13,6 +13,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.permadeath.ConfigData;
 import com.permadeath.GlobalSettings;
 import com.permadeath.MobKind;
+import com.permadeath.ModItems;
 import com.permadeath.MobSettings;
 import com.permadeath.MobShaper;
 import com.permadeath.ResetPayload;
@@ -47,11 +48,11 @@ public class PermadeathScreen extends Screen {
     private static final int PANEL_H = 250;
 
     private static final String[] MOB_NAMES = { "Zombie", "Husk", "Ahogado", "Aldeano zombi", "Esqueleto",
-            "Stray", "Esqueleto Wither", "Araña", "Araña de cueva", "Creeper" };
+            "Stray", "Esqueleto Wither", "Araña", "Araña de cueva", "Creeper", "Iceologer", "Ilusioner" };
     private static final Item[] EGGS = { Items.ZOMBIE_SPAWN_EGG, Items.HUSK_SPAWN_EGG, Items.DROWNED_SPAWN_EGG,
             Items.ZOMBIE_VILLAGER_SPAWN_EGG, Items.SKELETON_SPAWN_EGG, Items.STRAY_SPAWN_EGG,
             Items.WITHER_SKELETON_SPAWN_EGG, Items.SPIDER_SPAWN_EGG, Items.CAVE_SPIDER_SPAWN_EGG,
-            Items.CREEPER_SPAWN_EGG };
+            Items.CREEPER_SPAWN_EGG, ModItems.ICEOLOGER_SPAWN_EGG, Items.BOW };
     private static final String[] EFFECT_KEYS = { "speed", "strength", "resistance", "regeneration",
             "fire_resistance", "invisibility", "jump_boost" };
     private static final String[] EFFECT_NAMES = { "Velocidad", "Fuerza", "Resistencia", "Regeneración",
@@ -62,7 +63,7 @@ public class PermadeathScreen extends Screen {
     private static final String[] DIM_IDS = { "overworld", "nether", "end" };
     private static final String[] DIM_NAMES = { "Overworld", "Nether", "End" };
 
-    private enum Tab { MOBS, DIFICULTAD, OLEADA }
+    private enum Tab { MOBS, DIFICULTAD, OLEADA, ILLAGERS }
 
     private enum Section { GENERAL, ARMADURA, EFECTOS, DIMENSIONES }
 
@@ -120,6 +121,10 @@ public class PermadeathScreen extends Screen {
             tab = Tab.OLEADA;
             clearAndInit();
         }).dimensions(left + 150, top + 6, 60, 18).build());
+        addDrawableChild(ButtonWidget.builder(Text.literal(tab == Tab.ILLAGERS ? "[Illagers]" : "Illagers"), b -> {
+            tab = Tab.ILLAGERS;
+            clearAndInit();
+        }).dimensions(left + 214, top + 6, 52, 18).build());
         addDrawableChild(ButtonWidget.builder(Text.literal("Cerrar"), b -> close())
                 .dimensions(left + PANEL_W - 62, top + 6, 56, 18).build());
 
@@ -128,8 +133,10 @@ public class PermadeathScreen extends Screen {
             initMobs();
         } else if (tab == Tab.DIFICULTAD) {
             initDifficulty();
-        } else {
+        } else if (tab == Tab.OLEADA) {
             initWave();
+        } else {
+            initIllagers();
         }
     }
 
@@ -303,6 +310,37 @@ public class PermadeathScreen extends Screen {
                 .dimensions(x, top + 190, w, 20).build());
     }
 
+    /** Opciones de Iceologer e Ilusioner, separadas de las de mobs y oleadas. */
+    private void initIllagers() {
+        GlobalSettings g = data.global;
+        int x = left + 12;
+        int w = PANEL_W - 24;
+
+        addSlider(x, top + 56, w, "Iceologer: iglús naturales (% por chunk nuevo)", "%", 0, 20, g.iglooChance,
+                v -> g.iglooChance = v, this::sendGlobal);
+        addSlider(x, top + 80, w, "Ilusioner: generación natural (% por chunk nuevo)", "%", 0, 20, g.illusionerNaturalChance,
+                v -> g.illusionerNaturalChance = v, this::sendGlobal);
+        addSlider(x, top + 118, w, "Iceologer: aparición en raids (% por oleada)", "%", 0, 100, g.iceologerRaidChance,
+                v -> g.iceologerRaidChance = v, this::sendGlobal);
+        addSlider(x, top + 142, w, "Ilusioner: aparición en raids (% por oleada)", "%", 0, 100, g.illusionerRaidChance,
+                v -> g.illusionerRaidChance = v, this::sendGlobal);
+    }
+
+    private void drawIllagerTexts(DrawContext context) {
+        drawText(context, "Generación natural", left + 12, top + 38, 0xFF202020);
+        drawText(context, "Raids", left + 12, top + 104, 0xFF202020);
+        String[] lines = {
+                "Iglús: laderas nevadas y picos helados. Ilusioner: bosque oscuro.",
+                "Solo cuenta para chunks NUEVOS; los ya generados no cambian.",
+                "Raids: cada oleada de una raid tira el dado de cada uno por separado.",
+                "Los efectos y dimensiones de estos mobs se editan en la pestaña Mobs." };
+        int y = top + 176;
+        for (String line : lines) {
+            drawText(context, line, left + 12, y, 0xFF404040);
+            y += 12;
+        }
+    }
+
     // ------------------------------------------------------------ red
     private void sendMob() {
         MobSettings s = data.mobs.get(selected.id);
@@ -447,8 +485,10 @@ public class PermadeathScreen extends Screen {
             drawMobsArea(context);
         } else if (tab == Tab.DIFICULTAD) {
             drawDifficultyTexts(context);
-        } else {
+        } else if (tab == Tab.OLEADA) {
             drawWaveTexts(context);
+        } else {
+            drawIllagerTexts(context);
         }
         super.render(context, mouseX, mouseY, delta);
 

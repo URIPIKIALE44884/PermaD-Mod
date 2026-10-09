@@ -20,6 +20,10 @@ public class PermadeathMod implements ModInitializer {
         ModEffects.init();
         ModPotions.init();
         ModEntities.init();
+        ModGameRules.init();
+        ModEnchantments.init();
+        ModWorldgen.init();
+        BowMultishot.init();
 
         // configuracion de mobs, red y pantalla
         ModConfig.load();

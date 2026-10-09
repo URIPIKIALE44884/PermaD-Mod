@@ -51,6 +51,22 @@ zombie con SU skin, nombre en rojo con un icono de zombie, +2 filas de corazones
 **Drops:** las armaduras puestas por el sistema que un zombie no podria tener de forma natural (netherita)
 nunca se sueltan, tampoco si el zombie se convierte en ahogado. El resto solo se suelta con "Drop del equipo".
 
+## Iceologer e Ilusioner (integrados en PermaDeath)
+Adaptado de "Iceologer Mod" (NeoForge 1.21.4, MCreator, licencia Ms-RL, autores CoverWeb/MCreator): se tomo su
+funcionamiento (stats, melee, hielo al tocar/caer, reglas de juego) y se ESCRIBIO DE NUEVO para Fabric 1.20.6;
+no se copiaron sus archivos ni su textura (la textura de aqui es propia).
+- Iceologer: illager cuerpo a cuerpo (10 de vida, dano 3). Suelta hielo compacto y el libro Ice Aspect I.
+  Reglas de juego: dropIceChunks (por defecto true) e iceologerTurnsBlocksTouchedWhenFallingIntoIce (false).
+  Huevo de aparicion en la pestana Hardcore. Aparece en iglus pequenos de laderas nevadas y picos helados.
+- Ice Aspect I (espadas): ralentiza (Lentitud I) + congelamiento tipo nieve en polvo 5 s. Ice Aspect II (dos
+  libros I en un yunque): Lentitud II + congelamiento 10 s. No se combina con Aspecto de Fuego.
+- Ilusioner: mantiene su comportamiento. Suelta un arco con Multishot (3-5 flechas, gasta una sola flecha,
+  incompatible con Infinity y Mending). Puede aparecer solo en el bosque oscuro.
+- Raids: Iceologer e Ilusioner se suman a las oleadas de raid con probabilidad independiente.
+- Menu (pestana "Illagers"): % de iglus, % de Ilusioner natural, % en raids de cada uno.
+  Tambien estan en la pestana Mobs (efectos y dimensiones) como el resto.
+- La generacion natural solo afecta a chunks NUEVOS.
+
 ## Todavia no hace (etapa 4)
 - Zombies con arco disparan, esqueletos levantan el escudo, daño de explosion del creeper e ignorar escudo,
   mejoras de IA, pacificos que se defienden.

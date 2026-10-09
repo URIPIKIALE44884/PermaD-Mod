@@ -1,6 +1,6 @@
 package com.permadeath;
 
-/** Reglas globales de dificultad (pestanas "Dificultad" y "Oleada"). Todo apagado por defecto. */
+/** Reglas globales de dificultad (pestanas "Dificultad", "Oleada" y "Illagers"). Todo apagado/bajo por defecto. */
 public class GlobalSettings {
     /** Zombificacion: activar o no. */
     public boolean infectionEnabled = false;
@@ -18,6 +18,12 @@ public class GlobalSettings {
     public int waveCreeperCount = 5;
     public int waveWitherCount = 2;
 
+    /** Illagers nuevos. Generacion natural: % por chunk NUEVO. Raids: % por oleada de la raid. */
+    public int iglooChance = 1;
+    public int illusionerNaturalChance = 1;
+    public int iceologerRaidChance = 5;
+    public int illusionerRaidChance = 5;
+
     private static int clamp(int v, int min, int max) {
         return Math.max(min, Math.min(max, v));
     }
@@ -31,5 +37,9 @@ public class GlobalSettings {
         waveSpiderCount = clamp(waveSpiderCount, 0, 30);
         waveCreeperCount = clamp(waveCreeperCount, 0, 30);
         waveWitherCount = clamp(waveWitherCount, 0, 10);
+        iglooChance = clamp(iglooChance, 0, 20);
+        illusionerNaturalChance = clamp(illusionerNaturalChance, 0, 20);
+        iceologerRaidChance = clamp(iceologerRaidChance, 0, 100);
+        illusionerRaidChance = clamp(illusionerRaidChance, 0, 100);
     }
 }

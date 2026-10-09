@@ -22,5 +22,13 @@
   "entity.permadeath.infected_zombie": "Infected Zombie",
   "msg.permadeath.wave_incoming": "A wave is coming! It arrives in 3 minutes.",
   "msg.permadeath.wave_start": "The wave begins!",
-  "msg.permadeath.wave_end": "You survived the wave!"
+  "msg.permadeath.wave_end": "You survived the wave!",
+  "entity.permadeath.iceologer": "Iceologer",
+  "item.permadeath.iceologer_spawn_egg": "Iceologer Spawn Egg",
+  "enchantment.permadeath.ice_aspect": "Ice Aspect",
+  "enchantment.permadeath.bow_multishot": "Multishot",
+  "gamerule.dropIceChunks": "Iceologer drops ice chunks",
+  "gamerule.dropIceChunks.description": "If true, the Iceologer drops packed ice when a player touches it",
+  "gamerule.iceologerTurnsBlocksTouchedWhenFallingIntoIce": "Iceologer turns touched blocks into ice when falling",
+  "gamerule.iceologerTurnsBlocksTouchedWhenFallingIntoIce.description": "If true, the block it touches when falling becomes packed ice"
 }

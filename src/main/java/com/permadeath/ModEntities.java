@@ -19,7 +19,16 @@ public final class ModEntities {
                     .maxTrackingRange(8)
                     .build("infected_zombie"));
 
+    public static final EntityType<IceologerEntity> ICEOLOGER = Registry.register(
+            Registries.ENTITY_TYPE,
+            new Identifier(PermadeathMod.MOD_ID, "iceologer"),
+            EntityType.Builder.create(IceologerEntity::new, SpawnGroup.MONSTER)
+                    .dimensions(0.6f, 1.8f)
+                    .maxTrackingRange(8)
+                    .build("iceologer"));
+
     public static void init() {
         FabricDefaultAttributeRegistry.register(INFECTED_ZOMBIE, ZombieEntity.createZombieAttributes());
+        FabricDefaultAttributeRegistry.register(ICEOLOGER, IceologerEntity.createIceologerAttributes());
     }
 }

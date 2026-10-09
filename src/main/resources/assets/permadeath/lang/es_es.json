@@ -22,5 +22,13 @@
   "entity.permadeath.infected_zombie": "Zombie infectado",
   "msg.permadeath.wave_incoming": "¡Se acerca una oleada! Llega en 3 minutos.",
   "msg.permadeath.wave_start": "¡Comienza la oleada!",
-  "msg.permadeath.wave_end": "¡Sobreviviste a la oleada!"
+  "msg.permadeath.wave_end": "¡Sobreviviste a la oleada!",
+  "entity.permadeath.iceologer": "Iceologer",
+  "item.permadeath.iceologer_spawn_egg": "Huevo de aparición de Iceologer",
+  "enchantment.permadeath.ice_aspect": "Aspecto de Hielo",
+  "enchantment.permadeath.bow_multishot": "Multidisparo",
+  "gamerule.dropIceChunks": "Iceologer: soltar bloques de hielo",
+  "gamerule.dropIceChunks.description": "Si es verdadero, al tocar a un jugador el Iceologer deja caer hielo compacto",
+  "gamerule.iceologerTurnsBlocksTouchedWhenFallingIntoIce": "Iceologer: convertir en hielo al caer",
+  "gamerule.iceologerTurnsBlocksTouchedWhenFallingIntoIce.description": "Si es verdadero, el bloque que toca al caer se vuelve hielo compacto"
 }

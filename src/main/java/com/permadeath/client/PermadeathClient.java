@@ -23,6 +23,7 @@ public class PermadeathClient implements ClientModInitializer {
         ClientPlayNetworking.registerGlobalReceiver(WavePayload.ID,
                 (payload, context) -> context.client().execute(() -> ClientState.onWave(payload)));
         EntityRendererRegistry.register(ModEntities.INFECTED_ZOMBIE, InfectedZombieRenderer::new);
+        EntityRendererRegistry.register(ModEntities.ICEOLOGER, IceologerRenderer::new);
         HudRenderCallback.EVENT.register((drawContext, tickDelta) -> InfectionHud.render(drawContext));
     }
 }

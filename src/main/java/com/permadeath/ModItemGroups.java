@@ -2,6 +2,8 @@ package com.permadeath;
 
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.minecraft.component.type.PotionContentsComponent;
+import net.minecraft.enchantment.EnchantmentLevelEntry;
+import net.minecraft.item.EnchantedBookItem;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -30,6 +32,11 @@ public final class ModItemGroups {
                         entries.add(PotionContentsComponent.createStack(Items.POTION, ModPotions.ANTIDOTO));
                         entries.add(PotionContentsComponent.createStack(Items.SPLASH_POTION, ModPotions.ANTIDOTO));
                         entries.add(PotionContentsComponent.createStack(Items.LINGERING_POTION, ModPotions.ANTIDOTO));
+                        entries.add(ModItems.ICEOLOGER_SPAWN_EGG);
+                        entries.add(EnchantedBookItem.forEnchantment(new EnchantmentLevelEntry(ModEnchantments.ICE_ASPECT, 1)));
+                        entries.add(EnchantedBookItem.forEnchantment(new EnchantmentLevelEntry(ModEnchantments.ICE_ASPECT, 2)));
+                        entries.add(EnchantedBookItem.forEnchantment(new EnchantmentLevelEntry(ModEnchantments.BOW_MULTISHOT, 1)));
+                        entries.add(BowMultishot.createBow());
                     })
                     .build());
 

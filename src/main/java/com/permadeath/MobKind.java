@@ -18,9 +18,11 @@ public enum MobKind {
     WITHER_SKELETON("wither_skeleton", EntityType.WITHER_SKELETON, Family.SKELETON, "nether"),
     SPIDER("spider", EntityType.SPIDER, Family.SPIDER, "overworld"),
     CAVE_SPIDER("cave_spider", EntityType.CAVE_SPIDER, Family.SPIDER, "overworld"),
-    CREEPER("creeper", EntityType.CREEPER, Family.CREEPER, "overworld");
+    CREEPER("creeper", EntityType.CREEPER, Family.CREEPER, "overworld"),
+    ICEOLOGER("iceologer", ModEntities.ICEOLOGER, Family.ILLAGER, "overworld"),
+    ILLUSIONER("illusioner", EntityType.ILLUSIONER, Family.ILLAGER, "overworld");
 
-    public enum Family { ZOMBIE, SKELETON, SPIDER, CREEPER }
+    public enum Family { ZOMBIE, SKELETON, SPIDER, CREEPER, ILLAGER }
 
     public final String id;
     public final EntityType<?> type;
