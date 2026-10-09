@@ -7,6 +7,8 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.attribute.EntityAttributes;
+import net.minecraft.entity.mob.IllusionerEntity;
 import net.minecraft.entity.projectile.PersistentProjectileEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -14,15 +16,13 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.Vec3d;
 
-/**
- * - Un arco con Multishot dispara 3 a 5 flechas en abanico (la central es la normal y las demas
- *   no se pueden recoger, como en la ballesta). Gasta una sola flecha.
- * - El Ilusioner suelta un arco con Multishot al morir.
- */
+/** Arco Multishot funcional y botin probabilistico del Ilusioner. */
 public final class BowMultishot {
     private BowMultishot() {}
 
     private static final String TAG = "pm_multishot";
+    private static final float ILLUSIONER_BOW_DROP_CHANCE = 0.25f;
+    private static final double ILLUSIONER_MAX_HEALTH = 60.0;
 
     public static ItemStack createBow() {
         ItemStack bow = new ItemStack(Items.BOW);
@@ -31,7 +31,6 @@ public final class BowMultishot {
     }
 
     public static void init() {
-        // flechas nuevas disparadas por un jugador que sostiene un arco con Multishot
         ServerEntityEvents.ENTITY_LOAD.register((entity, world) -> {
             if (!(entity instanceof PersistentProjectileEntity arrow) || arrow.getCommandTags().contains(TAG)) {
                 return;
@@ -45,7 +44,7 @@ public final class BowMultishot {
             }
             arrow.addCommandTag(TAG);
 
-            int total = 3 + world.getRandom().nextInt(3); // 3 a 5 flechas
+            int total = 3 + world.getRandom().nextInt(3);
             for (int i = 1; i < total; i++) {
                 double degrees = Math.ceil(i / 2.0) * 10.0 * (i % 2 == 0 ? -1.0 : 1.0);
                 Entity created = arrow.getType().create(world);
@@ -66,9 +65,10 @@ public final class BowMultishot {
             }
         });
 
-        // el Ilusioner suelta un arco con Multishot
+        // El arco especial cae en un 25% de las muertes del Ilusioner.
         ServerLivingEntityEvents.AFTER_DEATH.register((entity, source) -> {
-            if (entity.getType() == EntityType.ILLUSIONER && !entity.getWorld().isClient) {
+            if (entity instanceof IllusionerEntity && !entity.getWorld().isClient
+                    && entity.getRandom().nextFloat() < ILLUSIONER_BOW_DROP_CHANCE) {
                 entity.dropStack(createBow());
             }
         });
