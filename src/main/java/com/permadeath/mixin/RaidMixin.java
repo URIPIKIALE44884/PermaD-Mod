@@ -12,19 +12,19 @@ import com.permadeath.ModConfig;
 import com.permadeath.ModEntities;
 
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.attribute.EntityAttributes;
+import net.minecraft.entity.mob.IllusionerEntity;
 import net.minecraft.entity.mob.RaiderEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.village.raid.Raid;
 
-/**
- * Cada vez que la raid genera una oleada, el Iceologer y el Ilusioner pueden sumarse con la
- * probabilidad (independiente) configurada en el menu. require = 0: si el metodo cambiara de nombre,
- * el juego no se cierra, solo no aparecen en raids.
- */
+/** Permite que Iceologers e Ilusioners se sumen a las oleadas con probabilidades configurables. */
 @Mixin(Raid.class)
 public abstract class RaidMixin {
+    private static final double ILLUSIONER_MAX_HEALTH = 60.0;
+
     @Inject(method = "spawnNextWave", at = @At("TAIL"), require = 0)
     private void permadeath$extraRaiders(BlockPos pos, CallbackInfo ci) {
         Raid raid = (Raid) (Object) this;
@@ -54,6 +54,10 @@ public abstract class RaidMixin {
             EntityType<T> type, int wave, BlockPos pos) {
         T raider = type.create(world);
         if (raider != null) {
+            if (raider instanceof IllusionerEntity illusioner) {
+                illusioner.getAttributeInstance(EntityAttributes.GENERIC_MAX_HEALTH).setBaseValue(ILLUSIONER_MAX_HEALTH);
+                illusioner.setHealth(ILLUSIONER_MAX_HEALTH);
+            }
             raid.addRaider(wave, raider, pos, false);
         }
     }
