@@ -3,7 +3,7 @@
   "id": "permadeath",
   "version": "${version}",
   "name": "Permadeath SMP",
-  "description": "Corazones permanentes, Totem de Memoria, pestana Hardcore, infeccion zombi, moldeador de mobs con pantalla de administracion.",
+  "description": "Corazones permanentes, Totem de Memoria, pestaña Hardcore, infección zombi, moldeador de mobs con pantalla de administración.",
   "authors": [
     "Permadeath SMP"
   ],
@@ -30,8 +30,8 @@
   "mixins": [
     "permadeath.mixins.json"
   ],
-  "contributors": {
-    "CoverWeb": "Iceologer Mod: modelo, animaciones y textura originales (Ms-RL)",
-    "MCreator": "Iceologer Mod (Ms-RL)"
-  }
+  "contributors": [
+    "CoverWeb — Iceologer Mod: modelo, animaciones y textura originales (Ms-RL)",
+    "MCreator — Iceologer Mod (Ms-RL)"
+  ]
 }
