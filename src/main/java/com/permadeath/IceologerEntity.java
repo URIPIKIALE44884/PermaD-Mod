@@ -31,17 +31,12 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 /**
- * Iceologer (adaptado del mod NeoForge "Iceologer Mod", escrito de nuevo para Fabric).
- * Illager cuerpo a cuerpo: 10 de vida, velocidad 0,3, dano 3, rango de seguimiento 16.
- * - Al tocar a un jugador deja caer bloques de hielo compacto (regla dropIceChunks).
- * - Al caer puede convertir el bloque que toca en hielo (regla iceologerTurnsBlocksTouchedWhenFallingIntoIce).
- * - Al morir suelta hielo compacto y el libro Ice Aspect I.
- * Es un RaiderEntity, asi que puede participar en las raids.
+ * Iceologer (adaptado del mod NeoForge "Iceologer Mod", reescrito para Fabric).
+ * Tiene 10 de vida, velocidad 0,3, dano 8 y rango de seguimiento 16.
+ * Los drops especiales son probabilisticos para que no esten garantizados.
  */
 public class IceologerEntity extends IllagerEntity {
-    /** Animacion de reposo (se inicia en el cliente; la de caminata usa el movimiento de las piernas). */
     public final AnimationState idleAnimationState = new AnimationState();
-
     private int iceChunkCooldown = 0;
 
     public IceologerEntity(EntityType<? extends IceologerEntity> type, World world) {
@@ -68,7 +63,7 @@ public class IceologerEntity extends IllagerEntity {
         return HostileEntity.createHostileAttributes()
                 .add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.3)
                 .add(EntityAttributes.GENERIC_MAX_HEALTH, 10.0)
-                .add(EntityAttributes.GENERIC_ATTACK_DAMAGE, 3.0)
+                .add(EntityAttributes.GENERIC_ATTACK_DAMAGE, 8.0)
                 .add(EntityAttributes.GENERIC_FOLLOW_RANGE, 16.0);
     }
 
@@ -94,7 +89,6 @@ public class IceologerEntity extends IllagerEntity {
         }
     }
 
-    /** Al tocar a un jugador caen bloques de hielo compacto desde 2 bloques sobre el Iceologer. */
     @Override
     public void onPlayerCollision(PlayerEntity player) {
         super.onPlayerCollision(player);
@@ -130,12 +124,16 @@ public class IceologerEntity extends IllagerEntity {
         return super.handleFallDamage(fallDistance, damageMultiplier, damageSource);
     }
 
-    /** Botin: hielo compacto y el libro Ice Aspect I (siempre). */
+    /** Hielo compacto: 50%; libro Ice Aspect I: 20%. */
     @Override
     protected void dropLoot(DamageSource source, boolean causedByPlayer) {
         super.dropLoot(source, causedByPlayer);
-        this.dropStack(new ItemStack(Blocks.PACKED_ICE));
-        this.dropStack(EnchantedBookItem.forEnchantment(new EnchantmentLevelEntry(ModEnchantments.ICE_ASPECT, 1)));
+        if (this.random.nextFloat() < 0.50f) {
+            this.dropStack(new ItemStack(Blocks.PACKED_ICE));
+        }
+        if (this.random.nextFloat() < 0.20f) {
+            this.dropStack(EnchantedBookItem.forEnchantment(new EnchantmentLevelEntry(ModEnchantments.ICE_ASPECT, 1)));
+        }
     }
 
     @Override
