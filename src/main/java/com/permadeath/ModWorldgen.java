@@ -14,10 +14,8 @@ import net.minecraft.world.gen.feature.Feature;
 import net.minecraft.world.gen.feature.PlacedFeature;
 
 /**
- * - Iglus del Iceologer: laderas nevadas (nieve en polvo) y picos helados.
- * - Ilusioner solitario: bosque oscuro.
- * Las probabilidades se leen en el momento de generar cada chunk, asi que el menu las cambia sin reiniciar.
- * Solo afectan a chunks nuevos.
+ * Iglus del Iceologer e Ilusioners solitarios aparecen en laderas nevadas y picos helados.
+ * Solo afectan a chunks nuevos; las probabilidades se leen al generar cada chunk.
  */
 public final class ModWorldgen {
     private ModWorldgen() {}
@@ -34,11 +32,8 @@ public final class ModWorldgen {
         RegistryKey<PlacedFeature> illusioner = RegistryKey.of(RegistryKeys.PLACED_FEATURE,
                 new Identifier(PermadeathMod.MOD_ID, "lone_illusioner"));
 
-        BiomeModifications.addFeature(
-                BiomeSelectors.includeByKey(BiomeKeys.SNOWY_SLOPES, BiomeKeys.FROZEN_PEAKS),
-                GenerationStep.Feature.SURFACE_STRUCTURES, igloo);
-        BiomeModifications.addFeature(
-                BiomeSelectors.includeByKey(BiomeKeys.DARK_FOREST),
-                GenerationStep.Feature.SURFACE_STRUCTURES, illusioner);
+        var snowyMountains = BiomeSelectors.includeByKey(BiomeKeys.SNOWY_SLOPES, BiomeKeys.FROZEN_PEAKS);
+        BiomeModifications.addFeature(snowyMountains, GenerationStep.Feature.SURFACE_STRUCTURES, igloo);
+        BiomeModifications.addFeature(snowyMountains, GenerationStep.Feature.SURFACE_STRUCTURES, illusioner);
     }
 }
