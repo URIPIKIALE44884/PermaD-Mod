@@ -28,7 +28,8 @@ public abstract class CreeperEntityMixin {
         }
         World world = self.getWorld();
         if (!world.isClient) {
-            float multiplier = self.isCharged() ? 2.0f : 1.0f;
+            boolean charged = self.getDataTracker().get(CreeperEntity.CHARGED);
+            float multiplier = charged ? 2.0f : 1.0f;
             world.createExplosion(self, null, WaveManager.PLAYER_ONLY_EXPLOSION,
                     self.getX(), self.getY(), self.getZ(),
                     this.explosionRadius * multiplier, false, World.ExplosionSourceType.NONE);
