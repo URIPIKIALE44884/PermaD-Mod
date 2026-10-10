@@ -153,7 +153,7 @@ public class WildfireFortressFeature extends Feature<DefaultFeatureConfig> {
             set(world, spawnerPos, Blocks.SPAWNER.getDefaultState());
             BlockEntity entity = world.getBlockEntity(spawnerPos);
             if (entity instanceof MobSpawnerBlockEntity spawnerEntity) {
-                spawnerEntity.getLogic().setEntityId(net.minecraft.entity.EntityType.BLAZE, world.toServerWorld(), world.getRandom());
+                spawnerEntity.getLogic().setEntityId(net.minecraft.entity.EntityType.BLAZE, world.toServerWorld(), world.getRandom(), spawnerPos);
             }
             spawners.add(spawnerPos);
         }
