@@ -42,7 +42,6 @@ public final class ModEntities {
             EntityType.Builder.create(WildfireEntity::new, SpawnGroup.MONSTER)
                     .dimensions(1.8f, 1.8f)
                     .maxTrackingRange(10)
-                    .fireImmune()
                     .build("wildfire"));
 
     public static final EntityType<SoulBlazeFireballEntity> SOUL_BLAZE_FIREBALL = Registry.register(
