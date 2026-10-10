@@ -45,6 +45,6 @@ public final class ClanManager {
   }
   p.sendMessage(Text.literal("[Clanes] "+msg),false);
  }
- private static void syncTeams(){if(server==null)return;var sb=server.getScoreboard();for(Team oldTeam:new ArrayList<>(sb.getTeams())){if(oldTeam.getName().startsWith("pm_"))sb.removeTeam(oldTeam);}for(Clan c:CLANS.values()){String teamName="pm_"+Integer.toHexString(c.name.toLowerCase(Locale.ROOT).hashCode());Team t=sb.getTeam(teamName);if(t==null)t=sb.addTeam(teamName);t.setPrefix(Text.literal("["+c.initials+"] ").formatted(color(c.color)));t.setColor(color(c.color));for(Member m:c.members){Team old=sb.getPlayerTeam(m.name);if(old!=null&&old!=t)sb.removePlayerFromTeam(m.name,old);if(sb.getPlayerTeam(m.name)!=t)sb.addPlayerToTeam(m.name,t);}}}
+ private static void syncTeams(){if(server==null)return;var sb=server.getScoreboard();for(Team oldTeam:new ArrayList<>(sb.getTeams())){if(oldTeam.getName().startsWith("pm_"))sb.removeTeam(oldTeam);}for(Clan c:CLANS.values()){String teamName="pm_"+Integer.toHexString(c.name.toLowerCase(Locale.ROOT).hashCode());Team t=sb.getTeam(teamName);if(t==null)t=sb.addTeam(teamName);t.setPrefix(Text.literal("["+c.initials+"] ").formatted(color(c.color)));t.setColor(color(c.color));for(Member m:c.members){Team old=sb.getScoreHolderTeam(m.name);if(old!=null&&old!=t)sb.removeScoreHolderFromTeam(m.name,old);if(sb.getPlayerTeam(m.name)!=t)sb.addScoreHolderToTeam(m.name,t);}}}
  private static Formatting color(String s){try{return Formatting.valueOf(s);}catch(Exception e){return Formatting.AQUA;}}
 }
