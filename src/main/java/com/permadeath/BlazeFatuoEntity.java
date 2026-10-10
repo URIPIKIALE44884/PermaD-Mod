@@ -38,7 +38,7 @@ public class BlazeFatuoEntity extends BlazeEntity implements RangedAttackMob {
     }
 
     @Override
-    public void attack(net.minecraft.entity.LivingEntity target, float pullProgress) {
+    public void shootAt(net.minecraft.entity.LivingEntity target, float pullProgress) {
         // reemplaza la bola de fuego normal del Blaze por una de fuego de almas
         double dx = target.getX() - this.getX();
         double dy = target.getBodyY(0.5) - this.getBodyY(0.5);
