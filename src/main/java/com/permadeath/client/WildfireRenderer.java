@@ -5,7 +5,6 @@ import com.permadeath.WildfireEntity;
 
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.render.entity.MobEntityRenderer;
-import net.minecraft.client.render.entity.state.LivingEntityRenderState;
 import net.minecraft.util.Identifier;
 
 /** La 2da fase tiñe al Wildfire de celeste-blanco (fuego de almas) en vez de su naranja habitual. */
