@@ -15,6 +15,9 @@
   "entrypoints": {
     "main": [
       "com.permadeath.PermadeathMod"
+    ],
+    "client": [
+      "com.permadeath.PermadeathModClient"
     ]
   },
   "depends": {
