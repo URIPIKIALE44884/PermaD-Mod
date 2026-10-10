@@ -52,7 +52,6 @@ public class IceologerEntity extends PillagerEntity {
 
     @Override
     protected void initGoals() {
-        super.initGoals();
         this.goalSelector.add(0, new SwimGoal(this));
         this.goalSelector.add(4, new MeleeAttackGoal(this, 1.2, true));
         this.goalSelector.add(8, new WanderAroundGoal(this, 1.0));
