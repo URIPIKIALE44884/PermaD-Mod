@@ -4,7 +4,7 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.minecraft.client.render.entity.BlazeEntityRenderer;
 import net.minecraft.client.render.entity.PillagerEntityRenderer;
-import net.minecraft.client.render.entity.FireballEntityRenderer;
+import net.minecraft.client.render.entity.FlyingItemEntityRenderer;
 import net.minecraft.client.render.entity.ZombieEntityRenderer;
 
 /**
@@ -18,6 +18,6 @@ public final class PermadeathModClient implements ClientModInitializer {
         EntityRendererRegistry.register(ModEntities.ICEOLOGER, PillagerEntityRenderer::new);
         EntityRendererRegistry.register(ModEntities.BLAZE_FATUO, BlazeEntityRenderer::new);
         EntityRendererRegistry.register(ModEntities.WILDFIRE, BlazeEntityRenderer::new);
-        EntityRendererRegistry.register(ModEntities.SOUL_BLAZE_FIREBALL, FireballEntityRenderer::new);
+        EntityRendererRegistry.register(ModEntities.SOUL_BLAZE_FIREBALL, context -> new FlyingItemEntityRenderer<>(context, 0.75F, true));
     }
 }
