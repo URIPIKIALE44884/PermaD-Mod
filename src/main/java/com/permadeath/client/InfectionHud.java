@@ -23,7 +23,7 @@ public final class InfectionHud {
             String time = String.format("%d:%02d", seconds / 60L, seconds % 60L);
             context.drawTextWithShadow(client.textRenderer, Text.literal("Zombificación: " + time), x, y, 0xFF55FF55);
             context.drawTextWithShadow(client.textRenderer, Text.literal("Sin regeneración de vida"), x, y + 11, 0xFFFF5555);
-        } else if (ClientState.needed > 0 && ClientState.hits > 0) {
+        } else if (ClientState.needed > 0) {
             int remaining = Math.max(0, ClientState.needed - ClientState.hits);
             context.drawTextWithShadow(client.textRenderer,
                     Text.literal("Infección: " + ClientState.hits + "/" + ClientState.needed + " (faltan " + remaining + ")"),
