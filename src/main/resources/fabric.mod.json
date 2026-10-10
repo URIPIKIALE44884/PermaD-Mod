@@ -17,7 +17,7 @@
       "com.permadeath.PermadeathMod"
     ],
     "client": [
-      "com.permadeath.PermadeathModClient"
+      "com.permadeath.client.PermadeathClient"
     ]
   },
   "depends": {
