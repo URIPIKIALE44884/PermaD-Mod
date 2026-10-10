@@ -27,5 +27,5 @@ public final class ClanScreen extends Screen {
   addDrawableChild(ButtonWidget.builder(Text.literal("Cerrar"),b->close()).dimensions(x+150,y+130,145,20).build());
  }
  private void send(String action,String value){if(client!=null&&client.getNetworkHandler()!=null)ClientPlayNetworking.send(new ClanActionPayload(action,value));}
- @Override public void render(DrawContext ctx,int mouseX,int mouseY,float delta){renderBackground(ctx);int x=(width-300)/2,y=(height-190)/2;ctx.drawCenteredTextWithShadow(textRenderer,title,width/2,y-2,0xFFFFFF);ctx.drawTextWithShadow(textRenderer,"Crear: escribe Nombre|INICIALES|COLOR (ej. Lobos|LOB|AQUA)",x,y+158,0xBBBBBB);ctx.drawTextWithShadow(textRenderer,"Nuevos miembros entran como Prueba. Color: AQUA, RED, GOLD...",x,y+170,0xBBBBBB);super.render(ctx,mouseX,mouseY,delta);}
+ @Override public void render(DrawContext ctx,int mouseX,int mouseY,float delta){renderBackground(ctx,mouseX,mouseY,delta);int x=(width-300)/2,y=(height-190)/2;ctx.drawCenteredTextWithShadow(textRenderer,title,width/2,y-2,0xFFFFFF);ctx.drawTextWithShadow(textRenderer,"Crear: escribe Nombre|INICIALES|COLOR (ej. Lobos|LOB|AQUA)",x,y+158,0xBBBBBB);ctx.drawTextWithShadow(textRenderer,"Nuevos miembros entran como Prueba. Color: AQUA, RED, GOLD...",x,y+170,0xBBBBBB);super.render(ctx,mouseX,mouseY,delta);}
 }
