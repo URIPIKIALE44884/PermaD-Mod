@@ -1,6 +1,7 @@
 package com.permadeath;
 
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.projectile.SmallFireballEntity;
@@ -10,6 +11,10 @@ import net.minecraft.world.explosion.ExplosionBehavior;
 
 /** Proyectil del Blaze Fatuo: como la bola de fuego del Blaze, pero quema mas fuerte y mas tiempo. */
 public class SoulBlazeFireballEntity extends SmallFireballEntity {
+    public SoulBlazeFireballEntity(EntityType<? extends SmallFireballEntity> type, World world) {
+        super(type, world);
+    }
+
     public SoulBlazeFireballEntity(World world, LivingEntity owner, double dx, double dy, double dz) {
         super(world, owner, dx, dy, dz);
     }
