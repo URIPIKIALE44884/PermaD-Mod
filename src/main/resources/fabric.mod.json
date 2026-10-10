@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "id": "permadeath",
+  "version": "${version}",
+  "name": "PermaDeath",
+  "description": "PermaDeath mod for Minecraft 1.20.6 using Fabric.",
+  "authors": [
+    "URIPIKIALE44884"
+  ],
+  "contact": {
+    "sources": "https://github.com/URIPIKIALE44884/PermaD-Mod"
+  },
+  "license": "All-Rights-Reserved",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.permadeath.PermadeathMod"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.15.11",
+    "minecraft": "~1.20.6",
+    "java": ">=21",
+    "fabric-api": "*"
+  }
+}
