@@ -101,7 +101,7 @@ public class WildfireEntity extends HostileEntity implements RangedAttackMob {
     }
 
     @Override
-    public void attack(PlayerEntity target, float pullProgress) {
+    public void attack(net.minecraft.entity.LivingEntity target, float pullProgress) {
         double dx = target.getX() - this.getX();
         double dy = target.getBodyY(0.5) - this.getBodyY(0.5);
         double dz = target.getZ() - this.getZ();
