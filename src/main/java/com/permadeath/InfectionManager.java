@@ -134,7 +134,7 @@ public final class InfectionManager {
 
         int[] last = LAST_SENT.get(player.getUuid());
         boolean empty = hitCount == 0 && ticksLeft == 0;
-        if (last == null ? empty : java.util.Arrays.equals(last, now)) {
+        if (last != null && java.util.Arrays.equals(last, now)) {
             return;
         }
         LAST_SENT.put(player.getUuid(), now);
