@@ -7,6 +7,7 @@ import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.mob.BlazeEntity;
 import net.minecraft.entity.mob.HostileEntity;
+import net.minecraft.entity.mob.RangedAttackMob;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.world.World;
@@ -16,7 +17,7 @@ import net.minecraft.world.World;
  * normal, y dispara proyectiles de fuego de almas (mas dano y quemadura mas larga). Se consigue
  * transformando permanentemente los generadores de la Fortaleza del Wildfire al entrar en su 2da fase.
  */
-public class BlazeFatuoEntity extends BlazeEntity {
+public class BlazeFatuoEntity extends BlazeEntity implements RangedAttackMob {
     public BlazeFatuoEntity(EntityType<? extends BlazeEntity> type, World world) {
         super(type, world);
     }
@@ -37,7 +38,7 @@ public class BlazeFatuoEntity extends BlazeEntity {
     }
 
     @Override
-    protected void shoot(net.minecraft.entity.LivingEntity target, float pullProgress) {
+    public void attack(net.minecraft.entity.LivingEntity target, float pullProgress) {
         // reemplaza la bola de fuego normal del Blaze por una de fuego de almas
         double dx = target.getX() - this.getX();
         double dy = target.getBodyY(0.5) - this.getBodyY(0.5);
