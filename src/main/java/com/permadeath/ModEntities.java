@@ -34,8 +34,7 @@ public final class ModEntities {
             EntityType.Builder.create(BlazeFatuoEntity::new, SpawnGroup.MONSTER)
                     .dimensions(0.6f, 1.8f)
                     .maxTrackingRange(8)
-                    .fireImmune()
-                    .build("blaze_fatuo"));
+                                        .build("blaze_fatuo"));
 
     public static final EntityType<WildfireEntity> WILDFIRE = Registry.register(
             Registries.ENTITY_TYPE,
