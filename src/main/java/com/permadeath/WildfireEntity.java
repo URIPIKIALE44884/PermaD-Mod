@@ -23,6 +23,7 @@ import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.mob.HostileEntity;
+import net.minecraft.entity.mob.BlazeEntity;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.ai.RangedAttackMob;
 import net.minecraft.entity.player.PlayerEntity;
@@ -43,7 +44,7 @@ import net.minecraft.world.World;
  * para Fabric 1.20.6: vuela, dispara bolas de fuego, tiene barra de jefe y una 2da fase permanente:
  * al bajar al 30% de vida transforma para siempre los generadores de su fortaleza en Blaze Fatuo.
  */
-public class WildfireEntity extends HostileEntity implements RangedAttackMob {
+public class WildfireEntity extends BlazeEntity implements RangedAttackMob {
     private static final TrackedData<Boolean> PHASE2 =
             DataTracker.registerData(WildfireEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
 
