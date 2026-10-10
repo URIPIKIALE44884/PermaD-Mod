@@ -24,6 +24,7 @@ import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.entity.mob.MobEntity;
+import net.minecraft.entity.mob.RangedAttackMob;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -42,7 +43,7 @@ import net.minecraft.world.World;
  * para Fabric 1.20.6: vuela, dispara bolas de fuego, tiene barra de jefe y una 2da fase permanente:
  * al bajar al 30% de vida transforma para siempre los generadores de su fortaleza en Blaze Fatuo.
  */
-public class WildfireEntity extends HostileEntity {
+public class WildfireEntity extends HostileEntity implements RangedAttackMob {
     private static final TrackedData<Boolean> PHASE2 =
             DataTracker.registerData(WildfireEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
 
@@ -100,6 +101,18 @@ public class WildfireEntity extends HostileEntity {
     }
 
     @Override
+    public void attack(PlayerEntity target, float pullProgress) {
+        double dx = target.getX() - this.getX();
+        double dy = target.getBodyY(0.5) - this.getBodyY(0.5);
+        double dz = target.getZ() - this.getZ();
+        SoulBlazeFireballEntity fireball = new SoulBlazeFireballEntity(this.getWorld(), this,
+                dx + this.random.nextGaussian() * 0.4, dy, dz + this.random.nextGaussian() * 0.4);
+        fireball.refreshPositionAndAngles(this.getX(), this.getBodyY(0.5), this.getZ(), 0.0f, 0.0f);
+        this.getWorld().spawnEntity(fireball);
+        this.playSound(SoundEvents.ENTITY_BLAZE_SHOOT, 2.0f, (this.random.nextFloat() - this.random.nextFloat()) * 0.2f + 1.0f);
+    }
+
+    @Override
     public void tick() {
         super.tick();
         if (!this.getWorld().isClient) {
@@ -127,7 +140,7 @@ public class WildfireEntity extends HostileEntity {
             for (BlockPos pos : this.spawnerPositions) {
                 BlockEntity entity = serverWorld.getBlockEntity(pos);
                 if (entity instanceof MobSpawnerBlockEntity spawner) {
-                    spawner.getLogic().setEntityId(ModEntities.BLAZE_FATUO, serverWorld, this.random);
+                    spawner.getLogic().setEntityId(ModEntities.BLAZE_FATUO, serverWorld, this.random, pos);
                     serverWorld.markDirty(pos);
                 }
             }
