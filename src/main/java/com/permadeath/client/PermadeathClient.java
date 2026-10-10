@@ -9,7 +9,7 @@ import com.permadeath.WavePayload;
 
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.render.entity.FlyingItemEntityRenderer;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
@@ -33,6 +33,8 @@ public class PermadeathClient implements ClientModInitializer {
         EntityRendererRegistry.register(ModEntities.BLAZE_FATUO, BlazeFatuoRenderer::new);
         EntityModelLayerRegistry.registerModelLayer(WildfireModel.LAYER, WildfireModel::getTexturedModelData);
         EntityRendererRegistry.register(ModEntities.WILDFIRE, WildfireRenderer::new);
+        EntityRendererRegistry.register(ModEntities.SOUL_BLAZE_FIREBALL,
+                context -> new FlyingItemEntityRenderer<>(context, 0.75F, true));
         HudRenderCallback.EVENT.register((drawContext, tickDelta) -> InfectionHud.render(drawContext));
     }
 }
