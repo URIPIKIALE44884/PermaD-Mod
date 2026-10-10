@@ -82,3 +82,9 @@ y distribuidos bajo su licencia Ms-RL (ver LICENSE-MS-RL.txt y NOTICE.md).
 ## Instalar
 .jar en la carpeta mods del servidor y de cada jugador (hace falta Fabric API).
 Si tenias el jar viejo de solo datos, sacalo.
+
+## Clanes (`/clan`)
+El comando `/clan` abre una interfaz para crear, unirse, salir, invitar, eliminar miembros, ascender rangos, cambiar el color y eliminar el clan. Escribe en el campo `Nombre|INICIALES|COLOR` al crear (por ejemplo `Lobos|LOB|AQUA`); para las acciones sobre jugadores o clanes escribe el nombre correspondiente. Los nuevos integrantes entran como `Prueba`. Los datos se guardan en `permadeath-clans.json` en la carpeta del mundo. El prefijo `[INI]` y el color se muestran en la lista TAB mediante equipos del scoreboard.
+
+## Wildfire
+Se incorporaron al paquete la textura y los recursos de geometría/animación originales extraídos del JAR NeoForge que facilitó el usuario. El proyecto sigue dirigido a Fabric 1.20.6; el recurso de geometría GeckoLib está incluido como referencia, pero el renderer Java actual sigue usando el modelo Fabric del proyecto. Para reproducir el modelo animado original al 100%, aún se requiere integrar y probar una versión de GeckoLib compatible con Fabric 1.20.6. La textura del Blaze Fatuo fue recoloreada en azules y grises conservando su canal alfa.
