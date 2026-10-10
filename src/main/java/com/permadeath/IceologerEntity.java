@@ -18,6 +18,7 @@ import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.entity.mob.IllagerEntity;
+import net.minecraft.entity.mob.PillagerEntity;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.raid.RaiderEntity;
 import net.minecraft.entity.passive.IronGolemEntity;
@@ -38,7 +39,7 @@ import net.minecraft.world.World;
  * - Al morir suelta hielo compacto y el libro Ice Aspect I.
  * Es un RaiderEntity, asi que puede participar en las raids.
  */
-public class IceologerEntity extends IllagerEntity {
+public class IceologerEntity extends PillagerEntity {
     /** Animacion de reposo (se inicia en el cliente; la de caminata usa el movimiento de las piernas). */
     public final AnimationState idleAnimationState = new AnimationState();
 
