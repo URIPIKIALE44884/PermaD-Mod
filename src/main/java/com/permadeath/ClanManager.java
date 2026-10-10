@@ -12,7 +12,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
-import net.minecraft.world.WorldSavePath;
+import net.minecraft.util.WorldSavePath;
 
 /** Sistema de clanes del servidor. Todos los nuevos miembros entran con rango Prueba. */
 public final class ClanManager {
