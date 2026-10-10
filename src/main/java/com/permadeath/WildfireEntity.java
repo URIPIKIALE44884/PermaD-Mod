@@ -11,7 +11,7 @@ import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.ai.goal.LookAtEntityGoal;
 import net.minecraft.entity.ai.goal.ProjectileAttackGoal;
 import net.minecraft.entity.ai.goal.SwimGoal;
-import net.minecraft.entity.ai.goal.TargetGoal;
+import net.minecraft.entity.ai.goal.ActiveTargetGoal;
 import net.minecraft.entity.ai.pathing.BirdNavigation;
 import net.minecraft.entity.ai.pathing.EntityNavigation;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
@@ -86,17 +86,7 @@ public class WildfireEntity extends HostileEntity {
         this.goalSelector.add(0, new SwimGoal(this));
         this.goalSelector.add(4, new ProjectileAttackGoal(this, 0.7, 40, 20, 64.0f));
         this.goalSelector.add(8, new LookAtEntityGoal(this, PlayerEntity.class, 12.0f));
-        this.targetSelector.add(1, new TargetGoal(this, true) {
-            @Override
-            public boolean canStart() {
-                return this.mob.getWorld().getClosestPlayer(this.mob, 32.0) != null;
-            }
-
-            @Override
-            public void start() {
-                this.mob.setTarget(this.mob.getWorld().getClosestPlayer(this.mob, 32.0));
-            }
-        });
+        this.targetSelector.add(1, new ActiveTargetGoal<>(this, PlayerEntity.class, true));
     }
 
     public static DefaultAttributeContainer.Builder createWildfireAttributes() {
