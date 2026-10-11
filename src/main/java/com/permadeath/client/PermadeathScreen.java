@@ -81,6 +81,7 @@ public class PermadeathScreen extends Screen {
     private int armorSelectedMaterial = -1;
     private TextFieldWidget editField;
     private int editMaterial = -1;
+    private int effectPage = 0;
 
     public PermadeathScreen(ConfigData data) {
         super(Text.literal("Permadeath"));
@@ -190,6 +191,7 @@ public class PermadeathScreen extends Screen {
             String label = sectionName(sec);
             addDrawableChild(ButtonWidget.builder(Text.literal(sec == section ? "[" + label + "]" : label), b -> {
                 section = sec;
+                effectPage = 0;
                 clearAndInit();
             }).dimensions(optX + i * (buttonWidth + gap), top + 52, buttonWidth, 18).build());
         }
@@ -227,7 +229,10 @@ public class PermadeathScreen extends Screen {
                         v -> s.armorEnchantChance = v, this::sendMob);
             }
             case EFECTOS -> {
-                for (int i = 0; i < EFFECT_KEYS.length; i++) {
+                int pageSize = 5;
+                int start = effectPage * pageSize;
+                int end = Math.min(EFFECT_KEYS.length, start + pageSize);
+                for (int i = start; i < end; i++) {
                     final String key = EFFECT_KEYS[i];
                     final String name = EFFECT_NAMES[i];
                     int y = y0 + i * 20;
@@ -239,6 +244,19 @@ public class PermadeathScreen extends Screen {
                     }).dimensions(optX, y, 112, 18).build());
                     addSlider(optX + 116, y, optW - 116, "Prob", "%", 0, 100, current[1],
                             v -> current[1] = v, this::sendMob);
+                }
+                int pageY = y0 + pageSize * 20 + 2;
+                if (effectPage > 0) {
+                    addDrawableChild(ButtonWidget.builder(Text.literal("< Anterior"), b -> {
+                        effectPage--;
+                        clearAndInit();
+                    }).dimensions(optX + 8, pageY, 88, 18).build());
+                }
+                if (end < EFFECT_KEYS.length) {
+                    addDrawableChild(ButtonWidget.builder(Text.literal("Siguiente >"), b -> {
+                        effectPage++;
+                        clearAndInit();
+                    }).dimensions(optX + optW - 96, pageY, 88, 18).build());
                 }
             }
             case DIMENSIONES -> {
@@ -769,6 +787,7 @@ public class PermadeathScreen extends Screen {
             for (int i = 0; i < kinds.length; i++) {
                 if (mouseX >= eggX(i) && mouseX < eggX(i) + 18 && mouseY >= top + 28 && mouseY < top + 46) {
                     selected = kinds[i];
+                    effectPage = 0;
                     clearAndInit();
                     return true;
                 }
