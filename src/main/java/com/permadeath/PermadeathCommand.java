@@ -39,7 +39,7 @@ public final class PermadeathCommand {
             return 1;
         }));
         dispatcher.register(CommandManager.literal("permadeath")
-                .requires(source -> source.hasPermissionLevel(2))
+                .requires(source -> source.hasPermissionLevel(1))
                 .then(CommandManager.literal("list").executes(PermadeathCommand::list))
                 .then(CommandManager.literal("wave")
                         .then(CommandManager.literal("start").executes(ctx -> say(ctx,
