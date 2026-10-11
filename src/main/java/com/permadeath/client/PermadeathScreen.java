@@ -186,14 +186,38 @@ public class PermadeathScreen extends Screen {
         int count = sections.size();
         int gap = 4;
         int buttonWidth = (optW - gap * (count - 1)) / count;
-        for (int i = 0; i < count; i++) {
-            Section sec = sections.get(i);
-            String label = sectionName(sec);
-            addDrawableChild(ButtonWidget.builder(Text.literal(sec == section ? "[" + label + "]" : label), b -> {
-                section = sec;
+        // En ventanas estrechas las pestañas se sustituyen por navegación anterior/siguiente.
+        // Así los nombres de sección no se pisan entre sí ni invaden el resto del menú.
+        if (buttonWidth < 54) {
+            int currentIndex = sections.indexOf(section);
+            addDrawableChild(ButtonWidget.builder(Text.literal("<"), b -> {
+                int index = sections.indexOf(section);
+                section = sections.get((index - 1 + sections.size()) % sections.size());
                 effectPage = 0;
                 clearAndInit();
-            }).dimensions(optX + i * (buttonWidth + gap), top + 52, buttonWidth, 18).build());
+            }).dimensions(optX, top + 52, 28, 18).build());
+            addDrawableChild(ButtonWidget.builder(Text.literal("‹ " + sectionName(section) + " ›"), b -> {
+                int index = sections.indexOf(section);
+                section = sections.get((index + 1) % sections.size());
+                effectPage = 0;
+                clearAndInit();
+            }).dimensions(optX + 32, top + 52, Math.max(80, optW - 64), 18).build());
+            addDrawableChild(ButtonWidget.builder(Text.literal(">"), b -> {
+                int index = sections.indexOf(section);
+                section = sections.get((index + 1) % sections.size());
+                effectPage = 0;
+                clearAndInit();
+            }).dimensions(optX + optW - 28, top + 52, 28, 18).build());
+        } else {
+            for (int i = 0; i < count; i++) {
+                Section sec = sections.get(i);
+                String label = sectionName(sec);
+                addDrawableChild(ButtonWidget.builder(Text.literal(sec == section ? "[" + label + "]" : label), b -> {
+                    section = sec;
+                    effectPage = 0;
+                    clearAndInit();
+                }).dimensions(optX + i * (buttonWidth + gap), top + 52, buttonWidth, 18).build());
+            }
         }
 
         switch (section) {
