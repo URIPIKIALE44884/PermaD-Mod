@@ -34,12 +34,14 @@ public class BlazeFatuoModel extends SinglePartEntityModel<BlazeFatuoEntity> {
         rootData.addChild("head", ModelPartBuilder.create().uv(0, 0)
                 .cuboid(-4.0f, -4.0f, -4.0f, 8.0f, 8.0f, 8.0f, new Dilation(0.0f)),
                 ModelTransform.pivot(0.0f, 4.0f, 0.0f));
+        // La textura vanilla del Blaze reserva la región UV (0,16) para varillas 2x8x2.
+        // Usar UV inventados o varillas de 16 bloques toma píxeles de otras partes del atlas.
         for (int i = 0; i < 8; i++) {
             float angle = (float) (i * Math.PI / 4.0);
             float x = MathHelper.cos(angle) * 6.0f;
             float z = MathHelper.sin(angle) * 6.0f;
-            rootData.addChild("rod" + i, ModelPartBuilder.create().uv(32 + (i % 4) * 8, (i / 4) * 16)
-                    .cuboid(-1.0f, 0.0f, -1.0f, 2.0f, 16.0f, 2.0f, new Dilation(0.0f)),
+            rootData.addChild("rod" + i, ModelPartBuilder.create().uv(0, 16)
+                    .cuboid(-1.0f, 0.0f, -1.0f, 2.0f, 8.0f, 2.0f, new Dilation(0.0f)),
                     ModelTransform.pivot(x, 0.0f, z));
         }
         return TexturedModelData.of(data, 64, 32);
