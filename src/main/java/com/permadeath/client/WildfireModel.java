@@ -38,7 +38,7 @@ public class WildfireModel extends SinglePartEntityModel<WildfireEntity> {
             float angle = (float) (i * Math.PI / 6.0);
             float x = MathHelper.cos(angle) * 11.0f;
             float z = MathHelper.sin(angle) * 11.0f;
-            rootData.addChild("rod" + i, ModelPartBuilder.create().uv(32 + (i % 6) * 5, (i / 6) * 32)
+            rootData.addChild("rod" + i, ModelPartBuilder.create().uv(32, (i / 6) * 32)
                     .cuboid(-1.5f, 0.0f, -1.5f, 3.0f, 28.0f, 3.0f, new Dilation(0.0f)),
                     ModelTransform.pivot(x, 2.0f, z));
         }
